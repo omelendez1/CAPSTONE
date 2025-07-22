@@ -2,59 +2,94 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import fetch from "node-fetch"; // Needed to fetch from external API
+import fetch from "node-fetch";
 import Card from "./models/Card.js";
 
 dotenv.config();
+
 const app = express();
-
-// Enable CORS for frontend origin
 app.use(cors({ origin: "http://localhost:5173" }));
-
-// Enable JSON body parsing
 app.use(express.json());
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-// Health check route
+//  Health check route
 app.get("/", (req, res) => {
   res.send("✅ Hello from backend");
 });
 
-// Fetch all saved cards from MongoDB
+//  Fetch all saved cards (flat)
 app.get("/api/cards", async (req, res) => {
   try {
     const cards = await Card.find();
     res.json(cards);
-  } catch (error) {
-    console.error("❌ Error fetching cards:", error);
+  } catch (err) {
+    console.error("❌ Error fetching cards:", err);
     res.status(500).json({ error: "Failed to fetch cards" });
   }
 });
 
-// Save a card to MongoDB
+// Save a card to DB
 app.post("/api/cards", async (req, res) => {
   try {
-    const { name, type, imageUrl } = req.body;
-    const newCard = new Card({ name, type, imageUrl });
+    const { name, type, imageUrl, nationalPokedexNumber } = req.body;
+    const newCard = new Card({ name, type, imageUrl, nationalPokedexNumber });
     await newCard.save();
     res.json({ message: "Card saved!", card: newCard });
   } catch (error) {
-    console.error("❌ Error saving card:", error);
+    console.error("❌ Failed to save card:", error);
     res.status(500).json({ error: "Failed to save card" });
   }
 });
 
-// Proxy route to fetch a random Pokémon card from the external API with detailed logging
+// Fetch grouped collection by generation
+app.get("/api/collections-grouped", async (req, res) => {
+  try {
+    const cards = await Card.find();
+
+    const grouped = {
+      gen1: [],
+      gen2: [],
+      gen3: [],
+      gen4: [],
+      gen5: [],
+      gen6: [],
+      gen7: [],
+      gen8: [],
+    };
+
+    cards.forEach((card) => {
+      const dex = card.nationalPokedexNumber || 0;
+
+      if (dex >= 1 && dex <= 151) grouped.gen1.push(card);
+      else if (dex >= 152 && dex <= 251) grouped.gen2.push(card);
+      else if (dex >= 252 && dex <= 386) grouped.gen3.push(card);
+      else if (dex >= 387 && dex <= 493) grouped.gen4.push(card);
+      else if (dex >= 494 && dex <= 649) grouped.gen5.push(card);
+      else if (dex >= 650 && dex <= 721) grouped.gen6.push(card);
+      else if (dex >= 722 && dex <= 809) grouped.gen7.push(card);
+      else if (dex >= 810 && dex <= 905) grouped.gen8.push(card);
+      else grouped.gen8.push(card); // fallback for future gens
+    });
+
+    res.json(grouped);
+  } catch (err) {
+    console.error("❌ Error grouping cards:", err);
+    res.status(500).json({ error: "Failed to group cards" });
+  }
+});
+
+// Proxy route to fetch a random card from Pokémon TCG API
 app.get("/api/random-card", async (req, res) => {
   try {
     const apiKey = process.env.POKEMON_API_KEY;
     console.log("🔑 Using API Key:", apiKey);
 
-    const url = "https://api.pokemontcg.io/v2/cards?pageSize=1&page=random";
+    const url = "https://api.pokemontcg.io/v2/cards?pageSize=250&page=1";
     console.log("🌐 Fetching:", url);
 
     const response = await fetch(url, {
@@ -74,8 +109,11 @@ app.get("/api/random-card", async (req, res) => {
     }
 
     const data = await response.json();
-    console.log("✅ Got data:", JSON.stringify(data).slice(0, 200) + "...");
-    res.json(data);
+    const cards = data.data;
+    const randomCard = cards[Math.floor(Math.random() * cards.length)];
+
+    console.log("✅ Random card selected:", randomCard.name);
+    res.json({ data: [randomCard] });
   } catch (err) {
     console.error("❌ Proxy failed:", err);
     res.status(500).json({ error: "Failed to fetch card from Pokémon API" });
@@ -83,6 +121,6 @@ app.get("/api/random-card", async (req, res) => {
 });
 
 const PORT = 8080;
-app.listen(PORT, () => {
-  console.log(`✅ Backend running on http://localhost:${PORT}`);
-});
+app.listen(PORT, () =>
+  console.log(`✅ Backend running on http://localhost:${PORT}`)
+);

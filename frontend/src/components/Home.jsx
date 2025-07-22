@@ -9,7 +9,6 @@ export default function Home() {
     setCard(null);
 
     try {
-      // ✅ Now calling your backend proxy
       const response = await fetch("http://localhost:8080/api/random-card");
 
       if (!response.ok) {
@@ -17,7 +16,7 @@ export default function Home() {
       }
 
       const data = await response.json();
-      const randomCard = data.data[0]; // Extract first random card
+      const randomCard = data.data[0];
 
       setCard({
         name: randomCard.name,
@@ -61,31 +60,39 @@ export default function Home() {
       </button>
 
       {/* Card Display */}
-      <div className="mt-4">
-        {loading && <p>Loading card...</p>}
-
-        {!loading && !card && (
-          <div className="placeholder"></div> // Placeholder before a card loads
-        )}
-
-        {card && (
-          <>
+      <div className="mt-4 flex justify-center">
+        {/* Always reserve the same space */}
+        <div className="placeholder relative">
+          {loading && (
+            <p className="absolute w-full text-center text-white top-1/2 transform -translate-y-1/2">
+              Loading...
+            </p>
+          )}
+          {card && (
             <img
               src={card.imageUrl}
               alt={card.name}
-              className="mx-auto w-64 shadow-lg"
+              className="absolute top-0 left-0 w-full h-full object-contain rounded-lg shadow-lg"
+              width="250"
+              height="350"
             />
-            <h2 className="text-xl mt-2">{card.name}</h2>
-            <p>Type: {card.type}</p>
-            <button
-              onClick={saveCardToDB}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Save to Collection
-            </button>
-          </>
-        )}
+          )}
+        </div>
       </div>
+
+      {/* Card Info + Save Button */}
+      {card && (
+        <div className="mt-2 text-center">
+          <h2 className="text-xl mt-2">{card.name}</h2>
+          <p>Type: {card.type}</p>
+          <button
+            onClick={saveCardToDB}
+            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Save to Collection
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,136 @@
+/*  Grid layout for 10 cards per row */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr); /* always 10 per row */
+  gap: 1rem;
+  justify-items: center;
+  margin-bottom: 2rem;
+}
+
+/* Each card styling */
+.card-item {
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.5rem;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 150px; /* keeps cards compact */
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.card-item img {
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.card-item h3 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.card-item p {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0.1rem 0;
+}
+
+/* Modal overlay (dark transparent background) */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  overflow: auto; /* allows scrolling if modal is tall */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content box (zoomed card view) */
+.modal-content {
+  background: rgb(26, 63, 121);
+  padding: 1.25rem;
+  border-radius: 10px;
+  text-align: center;
+
+  max-width: 450px; /* about 10% smaller than before */
+  width: 90%;
+
+  /* ensure modal never exceeds screen height */
+  max-height: 90vh;
+  overflow-y: auto;
+
+  position: relative;
+  animation: zoomIn 0.2s ease-in-out;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  object-fit: contain;
+}
+
+.modal-content h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+  background-color: #fff;
+}
+
+.modal-content p {
+  font-size: 1rem;
+  color: white;
+}
+
+/* Close button */
+.modal-content button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  color: black;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+
+/* ✅ Scoped hover style only for modal buttons */
+.modal-content button:hover:not(:disabled) {
+  background-color: rgb(255, 203, 5);
+  color: black;
+}

@@ -1,30 +1,99 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import "./Collection.css";
 
 export default function Collection() {
-  const [cards, setCards] = useState([]);
+  const [grouped, setGrouped] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedCard, setSelectedCard] = useState(null); // <-- new state for modal
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/cards")
+    fetch("/api/collections-grouped")
       .then((res) => res.json())
-      .then((data) => setCards(data))
-      .catch(console.error);
+      .then((data) => {
+        setGrouped(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("❌ Failed to load collections:", err);
+        setLoading(false);
+      });
   }, []);
 
-  return (
-    <div className="p-4 text-center">
-      <h2 className="text-2xl font-bold mb-4">My Collection</h2>
+  if (loading) {
+    return (
+      <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "1.25rem" }}>
+        Loading your Pokémon collection...
+      </p>
+    );
+  }
+
+  const renderSection = (title, cards) => (
+    <section style={{ marginBottom: "3rem" }}>
+      <h2 style={{ textAlign: "center", fontSize: "1.75rem", marginBottom: "1rem" }}>
+        {title}
+      </h2>
 
       {cards.length === 0 ? (
-        <p>No saved cards yet.</p>
+        <p style={{ textAlign: "center", color: "#666" }}>
+          No cards saved yet for this generation.
+        </p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {cards.map((card, index) => (
-            <div key={index} className="p-2 border rounded">
-              <img src={card.imageUrl} alt={card.name} />
-              <h3 className="mt-2">{card.name}</h3>
+        <div className="card-grid">
+          {cards.map((card) => (
+            <div
+              className="card-item"
+              key={card._id}
+              onClick={() => setSelectedCard(card)} // open modal on click
+            >
+              <img
+                src={card.imageUrl || "https://via.placeholder.com/200"}
+                alt={card.name}
+              />
+              <h3>{card.name}</h3>
               <p>Type: {card.type}</p>
+              {card.nationalPokedexNumber && <p>#{card.nationalPokedexNumber}</p>}
             </div>
           ))}
+        </div>
+      )}
+    </section>
+  );
+
+  return (
+    <div style={{ padding: "2rem" }}>
+      <h1 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "2rem" }}>
+        Your Pokémon Collection
+      </h1>
+
+      {renderSection("Generation I (Kanto)", grouped.gen1)}
+      {renderSection("Generation II (Johto)", grouped.gen2)}
+      {renderSection("Generation III (Hoenn)", grouped.gen3)}
+      {renderSection("Generation IV (Sinnoh)", grouped.gen4)}
+      {renderSection("Generation V (Unova)", grouped.gen5)}
+      {renderSection("Generation VI (Kalos)", grouped.gen6)}
+      {renderSection("Generation VII (Alola)", grouped.gen7)}
+      {renderSection("Generation VIII (Galar)", grouped.gen8)}
+
+      {/* Modal overlay for selected card */}
+      {selectedCard && (
+        <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()} // prevents closing when clicking inside modal
+          >
+            <button className="close-btn" onClick={() => setSelectedCard(null)}>
+              ✖
+            </button>
+            <img
+              src={selectedCard.imageUrl || "https://via.placeholder.com/400"}
+              alt={selectedCard.name}
+            />
+            <h2>{selectedCard.name}</h2>
+            <p>Type: {selectedCard.type}</p>
+            {selectedCard.nationalPokedexNumber && (
+              <p>#{selectedCard.nationalPokedexNumber}</p>
+            )}
+          </div>
         </div>
       )}
     </div>

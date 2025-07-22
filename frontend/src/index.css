@@ -16,7 +16,7 @@ body {
 header {
   padding: 1rem;
   text-align: center;
-  background-color: #1a1a1a; /* blue */
+  background-color: #1a1a1a; /* dark background */
   color: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -35,7 +35,8 @@ nav {
   gap: 1rem;
 }
 
-nav a, nav button {
+nav a,
+nav button {
   background-color: #3b82f6; /* blue */
   color: white;
   padding: 0.5rem 1rem;
@@ -47,7 +48,8 @@ nav a, nav button {
   transition: background-color 0.2s ease;
 }
 
-nav a:hover, nav button:hover {
+nav a:hover,
+nav button:hover {
   background-color: #2563eb; /* darker blue */
 }
 
@@ -56,7 +58,7 @@ h1, h2 {
   margin-bottom: 1rem;
 }
 
-/* Buttons */
+/* Buttons (global) */
 button {
   background-color: #2563eb;
   border: none;
@@ -74,7 +76,7 @@ button:disabled {
 }
 
 button:hover:not(:disabled) {
-  background-color: #1d4ed8;
+  background-color: #1d4ed8; /* blue hover by default */
 }
 
 /* Card container */
@@ -86,32 +88,21 @@ button:hover:not(:disabled) {
 }
 
 .card-container img {
-  width: 256px; /* 64 * 4 */
+  width: 256px;
   height: auto;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   border-radius: 0.5rem;
   margin-bottom: 1rem;
 }
 
-/* Grid for collection */
-.collection-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.collection-grid img {
-  width: 100%;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
 /* Placeholder box */
 .placeholder {
-  width: 256px;
-  height: 384px;
-  background-color: black;
-  border-radius: 0.5rem;
+  width: 250px;
+  height: 350px;
+  background: #000;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
   margin: 1rem auto;
 }
