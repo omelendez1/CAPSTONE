@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import tokenIcon from "../assets/token.png"; // token image in /src/assets
+import tokenIcon from "../assets/token.png";
 
 export default function Home() {
   const [card, setCard] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState(0);
+  const [cooldownMessage, setCooldownMessage] = useState("");
 
-  // ✅ Load token count from localStorage when component mounts
+  // Load tokens & lastEarnedDate from localStorage on mount
   useEffect(() => {
     const savedTokens = parseInt(localStorage.getItem("tokenCount"), 10);
     if (!isNaN(savedTokens)) {
@@ -14,22 +15,39 @@ export default function Home() {
     }
   }, []);
 
-  // ✅ Helper to update tokens + localStorage
   const updateTokenStorage = (newTokens) => {
     setTokens(newTokens);
     localStorage.setItem("tokenCount", newTokens);
   };
 
-  // ✅ Clicking token icon gives +4 tokens
-  const earnTokens = () => {
-    const newTokens = tokens + 4;
-    updateTokenStorage(newTokens);
+  //Helper: check if last earned date is today
+  const isSameDay = (dateString) => {
+    if (!dateString) return false;
+    const savedDate = new Date(dateString).toDateString();
+    const today = new Date().toDateString();
+    return savedDate === today;
   };
 
-  // ✅ Uses 1 token to generate a random card
+  // Earn +4 tokens ONLY once per day
+  const earnTokens = () => {
+    const lastEarnedDate = localStorage.getItem("lastEarnedDate");
+
+    if (isSameDay(lastEarnedDate)) {
+      setCooldownMessage("⏳ You’ve already claimed your daily tokens. Try again tomorrow!");
+      return;
+    }
+
+    const newTokens = tokens + 4;
+    updateTokenStorage(newTokens);
+
+    // Save today’s date to enforce cooldown
+    localStorage.setItem("lastEarnedDate", new Date().toISOString());
+    setCooldownMessage("✅ You earned +4 tokens for today!");
+  };
+
   const fetchRandomCard = async () => {
     if (tokens <= 0) {
-      alert("No tokens! Click the token icon to earn more.");
+      alert("No tokens left! Click the token icon (once per day) to earn more.");
       return;
     }
 
@@ -38,10 +56,7 @@ export default function Home() {
 
     try {
       const response = await fetch("http://localhost:8080/api/random-card");
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
 
       const data = await response.json();
       const randomCard = data.data[0];
@@ -52,9 +67,8 @@ export default function Home() {
         imageUrl: randomCard.images.large,
       });
 
-      // ✅ consume one token
-      const newTokens = tokens - 1;
-      updateTokenStorage(newTokens);
+      // Consume one token after success
+      updateTokenStorage(tokens - 1);
 
     } catch (err) {
       console.error("Error fetching card:", err);
@@ -82,11 +96,10 @@ export default function Home() {
 
   return (
     <div className="text-center p-4">
-
-      {/* Page header */}
+      {/* Header */}
       <h2 className="text-xl font-bold mb-4">Welcome to the Home Page</h2>
 
-      {/* Flex row: token icon + token counter + generate button */}
+      {/* Token Row */}
       <div
         style={{
           display: "flex",
@@ -96,7 +109,7 @@ export default function Home() {
           marginBottom: "1rem",
         }}
       >
-        {/* Token section (clickable to earn 4 tokens) */}
+        {/* Token clickable icon */}
         <div
           style={{
             display: "flex",
@@ -105,7 +118,7 @@ export default function Home() {
             cursor: "pointer",
           }}
           onClick={earnTokens}
-          title="Click to earn +4 tokens"
+          title="Click once per day to earn +4 tokens"
         >
           <img
             src={tokenIcon}
@@ -124,6 +137,13 @@ export default function Home() {
           {tokens > 0 ? "Generate Random Card" : "No Tokens"}
         </button>
       </div>
+
+      {/* Show cooldown or success message */}
+      {cooldownMessage && (
+        <p style={{ fontSize: "0.9rem", color: "gray", marginBottom: "1rem" }}>
+          {cooldownMessage}
+        </p>
+      )}
 
       {/* Card Display */}
       <div className="mt-4 flex justify-center">
@@ -145,7 +165,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Card Info + Save Button */}
+      {/* Card Info + Save */}
       {card && (
         <div className="mt-2 text-center">
           <h2 className="text-xl mt-2">{card.name}</h2>
