@@ -106,3 +106,8 @@ button:hover:not(:disabled) {
   overflow: hidden;
   margin: 1rem auto;
 }
+/*hover effect for token icon */
+.token-icon:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}

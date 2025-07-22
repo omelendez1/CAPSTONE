@@ -1,10 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import tokenIcon from "../assets/token.png"; // token image in /src/assets
 
 export default function Home() {
   const [card, setCard] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [tokens, setTokens] = useState(0);
 
+  // ✅ Load token count from localStorage when component mounts
+  useEffect(() => {
+    const savedTokens = parseInt(localStorage.getItem("tokenCount"), 10);
+    if (!isNaN(savedTokens)) {
+      setTokens(savedTokens);
+    }
+  }, []);
+
+  // ✅ Helper to update tokens + localStorage
+  const updateTokenStorage = (newTokens) => {
+    setTokens(newTokens);
+    localStorage.setItem("tokenCount", newTokens);
+  };
+
+  // ✅ Clicking token icon gives +4 tokens
+  const earnTokens = () => {
+    const newTokens = tokens + 4;
+    updateTokenStorage(newTokens);
+  };
+
+  // ✅ Uses 1 token to generate a random card
   const fetchRandomCard = async () => {
+    if (tokens <= 0) {
+      alert("No tokens! Click the token icon to earn more.");
+      return;
+    }
+
     setLoading(true);
     setCard(null);
 
@@ -23,6 +51,11 @@ export default function Home() {
         type: randomCard.types?.[0] || "Unknown",
         imageUrl: randomCard.images.large,
       });
+
+      // ✅ consume one token
+      const newTokens = tokens - 1;
+      updateTokenStorage(newTokens);
+
     } catch (err) {
       console.error("Error fetching card:", err);
       alert("Failed to fetch card. Backend proxy might be down.");
@@ -49,19 +82,51 @@ export default function Home() {
 
   return (
     <div className="text-center p-4">
+
+      {/* Page header */}
       <h2 className="text-xl font-bold mb-4">Welcome to the Home Page</h2>
 
-      {/* Button to fetch a random card */}
-      <button
-        onClick={fetchRandomCard}
-        className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+      {/* Flex row: token icon + token counter + generate button */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "2rem",
+          marginBottom: "1rem",
+        }}
       >
-        Generate Random Card
-      </button>
+        {/* Token section (clickable to earn 4 tokens) */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            cursor: "pointer",
+          }}
+          onClick={earnTokens}
+          title="Click to earn +4 tokens"
+        >
+          <img
+            src={tokenIcon}
+            alt="Token"
+            style={{ width: "40px", height: "40px" }}
+          />
+          <span style={{ fontWeight: "bold" }}>{tokens} tokens</span>
+        </div>
+
+        {/* Generate button */}
+        <button
+          onClick={fetchRandomCard}
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+          disabled={tokens <= 0}
+        >
+          {tokens > 0 ? "Generate Random Card" : "No Tokens"}
+        </button>
+      </div>
 
       {/* Card Display */}
       <div className="mt-4 flex justify-center">
-        {/* Always reserve the same space */}
         <div className="placeholder relative">
           {loading && (
             <p className="absolute w-full text-center text-white top-1/2 transform -translate-y-1/2">
