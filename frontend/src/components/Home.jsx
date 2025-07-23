@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 import tokenIcon from "../assets/token.png";
 
-
 export default function Home() {
   const [card, setCard] = useState(null);
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState(0);
   const [cooldownMessage, setCooldownMessage] = useState("");
 
-
-  // Load tokens & lastEarnedDate from localStorage on mount
+  //Load tokens from localStorage on mount
   useEffect(() => {
     const savedTokens = parseInt(localStorage.getItem("tokenCount"), 10);
     if (!isNaN(savedTokens)) {
@@ -17,14 +15,12 @@ export default function Home() {
     }
   }, []);
 
-
   const updateTokenStorage = (newTokens) => {
     setTokens(newTokens);
     localStorage.setItem("tokenCount", newTokens);
   };
 
-
-  //Helper: check if last earned date is today
+  // check if last earned date is today
   const isSameDay = (dateString) => {
     if (!dateString) return false;
     const savedDate = new Date(dateString).toDateString();
@@ -32,60 +28,54 @@ export default function Home() {
     return savedDate === today;
   };
 
-
-  // Earn +4 tokens ONLY once per day
+  // Earn +4 tokens once per day
   const earnTokens = () => {
     const lastEarnedDate = localStorage.getItem("lastEarnedDate");
 
-
     if (isSameDay(lastEarnedDate)) {
-      setCooldownMessage("⏳ You’ve already claimed your daily tokens. Try again tomorrow!");
+      setCooldownMessage(
+        "⏳ You’ve already claimed your daily tokens. Try again tomorrow!"
+      );
       return;
     }
 
-
     const newTokens = tokens + 4;
     updateTokenStorage(newTokens);
-
 
     // Save today’s date to enforce cooldown
     localStorage.setItem("lastEarnedDate", new Date().toISOString());
     setCooldownMessage("✅ You earned +4 tokens for today!");
   };
 
-
+  // Fetch a random card from backend proxy
   const fetchRandomCard = async () => {
     if (tokens <= 0) {
-      alert("No tokens left! Click the token icon (once per day) to earn more.");
+      alert(
+        "No tokens left! Click the token icon (once per day) to earn more."
+      );
       return;
     }
 
-
     setLoading(true);
     setCard(null);
-
 
     try {
       const response = await fetch("http://localhost:8080/api/random-card");
       if (!response.ok) throw new Error(`API error: ${response.status}`);
 
-
       const data = await response.json();
       const randomCard = data.data[0];
-
 
       setCard({
         name: randomCard.name,
         type: randomCard.types?.[0] || "Unknown",
         imageUrl: randomCard.images.large,
-        nationalPokedexNumber: randomCard.nationalPokedexNumbers?.[0] || null,
+        nationalPokedexNumber:
+          randomCard.nationalPokedexNumbers?.[0] || null,
       });
-
 
       // Consume one token after success
       updateTokenStorage(tokens - 1);
-
-
     } catch (err) {
       console.error("Error fetching card:", err);
       alert("Failed to fetch card. Backend proxy might be down.");
@@ -94,30 +84,44 @@ export default function Home() {
     }
   };
 
-
+  // Save card securely with JWT token
   const saveCardToDB = async () => {
     if (!card) return;
+
     try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("❌ You must be logged in to save cards!");
+        return;
+      }
+
       const response = await fetch("http://localhost:8080/api/cards", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Attach JWT token
+        },
         body: JSON.stringify(card),
       });
 
-
       const result = await response.json();
-      alert(result.message || "Card saved!");
+
+      if (!response.ok) {
+        alert(result.error || "Failed to save card");
+        return;
+      }
+
+      alert(result.message || "✅ Card saved!");
     } catch (err) {
       console.error("Error saving card:", err);
+      alert("❌ Could not save card. Are you logged in?");
     }
   };
-
 
   return (
     <div className="text-center p-4">
       {/* Header */}
       <h2 className="text-xl font-bold mb-4">Welcome to the Home Page</h2>
-
 
       {/* Token Row */}
       <div
@@ -148,7 +152,6 @@ export default function Home() {
           <span style={{ fontWeight: "bold" }}>{tokens} tokens</span>
         </div>
 
-
         {/* Generate button */}
         <button
           onClick={fetchRandomCard}
@@ -159,14 +162,12 @@ export default function Home() {
         </button>
       </div>
 
-
       {/* Show cooldown or success message */}
       {cooldownMessage && (
         <p style={{ fontSize: "0.9rem", color: "gray", marginBottom: "1rem" }}>
           {cooldownMessage}
         </p>
       )}
-
 
       {/* Card Display */}
       <div className="mt-4 flex justify-center">
@@ -187,7 +188,6 @@ export default function Home() {
           )}
         </div>
       </div>
-
 
       {/* Card Info + Save */}
       {card && (
