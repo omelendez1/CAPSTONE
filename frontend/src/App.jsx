@@ -11,18 +11,32 @@ import About from "./components/About";
 export default function App() {
   const [showLogin, setShowLogin] = useState(false);
 
+  // function to show modal from anywhere
+  const handleRequireLogin = () => {
+    setShowLogin(true);
+  };
+
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
+        {/* Header + Nav */}
         <ThemeHeader />
         <NavBar onLoginClick={() => setShowLogin(true)} />
 
+        {/* Routes */}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/collection" element={<Collection />} />
-          <Route path="/about" element={<About />} /> {/* New route */}
+          
+          {/* Pass onRequireLogin into Collection */}
+          <Route
+            path="/collection"
+            element={<Collection onRequireLogin={handleRequireLogin} />}
+          />
+
+          <Route path="/about" element={<About />} />
         </Routes>
 
+        {/* Global Login Modal */}
         {showLogin && <Login onClose={() => setShowLogin(false)} />}
       </div>
     </Router>
