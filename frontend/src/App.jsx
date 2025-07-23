@@ -3,6 +3,7 @@ import NavBar from "./components/NavBar";
 import ThemeHeader from "./components/ThemeHeader";
 import Home from "./components/Home";
 import Collection from "./components/Collection";
+import Login from "./components/Login"; // NEW
 
 export default function App() {
   return (
@@ -14,15 +15,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/collection" element={<Collection />} />
-          <Route
-            path="/extra"
-            element={
-              <div className="text-center p-4">
-                <h2 className="text-xl font-bold">Extra Section</h2>
-                <p>I can add more features later.</p>
-              </div>
-            }
-          />
+          {/* changed /extra with /login */}
+          <Route path="/login" element={<Login />} />
         </Routes>
       </div>
     </Router>
