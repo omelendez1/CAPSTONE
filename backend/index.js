@@ -14,14 +14,14 @@ const app = express();
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
-// ✅ Connect to MongoDB
+// Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 /* ================================
-   1️⃣ USER SCHEMA + MODEL
+    USER SCHEMA + MODEL
 ================================ */
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
@@ -33,10 +33,30 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 
 /* ================================
-   2️⃣ AUTH ROUTES
+  AUTH MIDDLEWARE (JWT protect)
+================================ */
+function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "No token provided" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId; // attach userId for later use
+    next();
+  } catch (err) {
+    console.error("❌ Invalid token:", err);
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+}
+
+/* ================================
+    AUTH ROUTES (login, register, forgot)
 ================================ */
 
-// 👉 LOGIN ROUTE (validates email/password, returns JWT)
+//  LOGIN ROUTE (validates email/password, returns JWT)
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -61,7 +81,7 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// 👉 FORGOT PASSWORD ROUTE (generates reset token)
+//  FORGOT PASSWORD ROUTE (generates reset token)
 app.post("/api/auth/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -86,10 +106,7 @@ app.post("/api/auth/forgot-password", async (req, res) => {
   }
 });
 
-/* 
-   👉 OPTIONAL: You might also want a REGISTER route to create initial users
-   (temporarily allow creating users while testing)
-*/
+// REGISTER ROUTE (create new users)
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -109,18 +126,13 @@ app.post("/api/auth/register", async (req, res) => {
 });
 
 /* ================================
-   3️⃣ ORIGINAL POKÉMON ROUTES
+   PROTECTED CARD ROUTES (USER SPECIFIC)
 ================================ */
 
-// Health check route
-app.get("/", (req, res) => {
-  res.send("✅ Hello from backend");
-});
-
-// Fetch all saved cards
-app.get("/api/cards", async (req, res) => {
+// Fetch all saved cards **only for the logged-in user**
+app.get("/api/cards", authMiddleware, async (req, res) => {
   try {
-    const cards = await Card.find();
+    const cards = await Card.find({ userId: req.userId });
     res.json(cards);
   } catch (err) {
     console.error("❌ Error fetching cards:", err);
@@ -128,11 +140,17 @@ app.get("/api/cards", async (req, res) => {
   }
 });
 
-// Save a card
-app.post("/api/cards", async (req, res) => {
+// Save a card for this logged-in user
+app.post("/api/cards", authMiddleware, async (req, res) => {
   try {
     const { name, type, imageUrl, nationalPokedexNumber } = req.body;
-    const newCard = new Card({ name, type, imageUrl, nationalPokedexNumber });
+    const newCard = new Card({
+      name,
+      type,
+      imageUrl,
+      nationalPokedexNumber,
+      userId: req.userId, //  tie card to logged-in user
+    });
     await newCard.save();
     res.json({ message: "Card saved!", card: newCard });
   } catch (error) {
@@ -141,10 +159,10 @@ app.post("/api/cards", async (req, res) => {
   }
 });
 
-// Grouped collection by generation
-app.get("/api/collections-grouped", async (req, res) => {
+// Grouped collection by generation (user-specific)
+app.get("/api/collections-grouped", authMiddleware, async (req, res) => {
   try {
-    const cards = await Card.find();
+    const cards = await Card.find({ userId: req.userId });
     const grouped = {
       gen1: [],
       gen2: [],
@@ -165,7 +183,6 @@ app.get("/api/collections-grouped", async (req, res) => {
       else if (dex >= 494 && dex <= 649) grouped.gen5.push(card);
       else if (dex >= 650 && dex <= 721) grouped.gen6.push(card);
       else if (dex >= 722 && dex <= 809) grouped.gen7.push(card);
-      else if (dex >= 810 && dex <= 905) grouped.gen8.push(card);
       else grouped.gen8.push(card);
     });
 
@@ -174,6 +191,15 @@ app.get("/api/collections-grouped", async (req, res) => {
     console.error("❌ Error grouping cards:", err);
     res.status(500).json({ error: "Failed to group cards" });
   }
+});
+
+/* ================================
+    POKÉMON API PROXY (unchanged)
+================================ */
+
+// Health check route
+app.get("/", (req, res) => {
+  res.send("✅ Hello from backend");
 });
 
 // Pokémon TCG API Proxy
@@ -215,3 +241,4 @@ const PORT = 8080;
 app.listen(PORT, () =>
   console.log(`✅ Backend running on http://localhost:${PORT}`)
 );
+
