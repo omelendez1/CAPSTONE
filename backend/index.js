@@ -149,7 +149,7 @@ app.post("/api/cards", authMiddleware, async (req, res) => {
       type,
       imageUrl,
       nationalPokedexNumber,
-      userId: req.userId, //  tie card to logged-in user
+      userId: req.userId, // tie card to logged-in user
     });
     await newCard.save();
     res.json({ message: "Card saved!", card: newCard });
@@ -190,6 +190,42 @@ app.get("/api/collections-grouped", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("❌ Error grouping cards:", err);
     res.status(500).json({ error: "Failed to group cards" });
+  }
+});
+
+/* ================================
+   CLEANUP ROUTE: FIX BAD FIELDS
+================================ */
+app.post("/api/admin/fix-pokedex", async (req, res) => {
+  try {
+    // Find all cards with the WRONG field name
+    const badCards = await Card.find({ " nationalPokedexNumber": { $exists: true } });
+
+    if (!badCards.length) {
+      return res.json({ message: "✅ No bad cards found. DB is already clean." });
+    }
+
+    let fixedCount = 0;
+
+    for (const card of badCards) {
+      const rawValue = card[" nationalPokedexNumber"];
+      const parsedDex = parseInt(rawValue, 10) || 0;
+
+      // ✅ Copy value into correct field
+      card.nationalPokedexNumber = parsedDex;
+
+      // ✅ Remove the wrong field
+      card.set(" nationalPokedexNumber", undefined, { strict: false });
+
+      await card.save();
+      console.log(`✅ Fixed card: ${card.name} → ${parsedDex}`);
+      fixedCount++;
+    }
+
+    res.json({ message: `✅ Fixed ${fixedCount} cards successfully!` });
+  } catch (err) {
+    console.error("❌ Failed to fix pokedex fields:", err);
+    res.status(500).json({ error: "Failed to fix bad fields" });
   }
 });
 
@@ -241,4 +277,3 @@ const PORT = 8080;
 app.listen(PORT, () =>
   console.log(`✅ Backend running on http://localhost:${PORT}`)
 );
-
