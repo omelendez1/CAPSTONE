@@ -6,8 +6,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState(0);
   const [cooldownMessage, setCooldownMessage] = useState("");
+  const [loginWarning, setLoginWarning] = useState(""); // ✅ NEW: warning for not logged in
 
-  //Load tokens from localStorage on mount
+  // Load tokens from localStorage on mount
   useEffect(() => {
     const savedTokens = parseInt(localStorage.getItem("tokenCount"), 10);
     if (!isNaN(savedTokens)) {
@@ -47,12 +48,19 @@ export default function Home() {
     setCooldownMessage("✅ You earned +4 tokens for today!");
   };
 
-  // Fetch a random card from backend proxy
+  // ✅ Check login before generating a card
   const fetchRandomCard = async () => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      setLoginWarning("⚠️ You must log in to generate random cards!");
+      // auto-clear after 3 seconds
+      setTimeout(() => setLoginWarning(""), 3000);
+      return;
+    }
+
     if (tokens <= 0) {
-      alert(
-        "No tokens left! Click the token icon (once per day) to earn more."
-      );
+      alert("No tokens left! Click the token icon (once per day) to earn more.");
       return;
     }
 
@@ -60,7 +68,12 @@ export default function Home() {
     setCard(null);
 
     try {
-      const response = await fetch("http://localhost:8080/api/random-card");
+      const response = await fetch("http://localhost:8080/api/random-card", {
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ ensure token is sent if required
+        },
+      });
+
       if (!response.ok) throw new Error(`API error: ${response.status}`);
 
       const data = await response.json();
@@ -70,12 +83,12 @@ export default function Home() {
         name: randomCard.name,
         type: randomCard.types?.[0] || "Unknown",
         imageUrl: randomCard.images.large,
-        nationalPokedexNumber:
-          randomCard.nationalPokedexNumbers?.[0] || null,
+        nationalPokedexNumber: randomCard.nationalPokedexNumbers?.[0] || null,
       });
 
       // Consume one token after success
       updateTokenStorage(tokens - 1);
+      setLoginWarning(""); // clear any old warning if successful
     } catch (err) {
       console.error("Error fetching card:", err);
       alert("Failed to fetch card. Backend proxy might be down.");
@@ -164,14 +177,21 @@ export default function Home() {
 
       {/* Show cooldown or success message */}
       {cooldownMessage && (
-        <p style={{ fontSize: "0.9rem", color: "gray", marginBottom: "1rem" }}>
+        <p style={{ fontSize: "0.9rem", color: "gray", marginBottom: "0.5rem" }}>
           {cooldownMessage}
+        </p>
+      )}
+
+      {/* ✅ Show login warning if not logged in */}
+      {loginWarning && (
+        <p style={{ fontSize: "0.9rem", color: "red", marginBottom: "0.5rem" }}>
+          {loginWarning}
         </p>
       )}
 
       {/* Card Display */}
       <div className="mt-4 flex justify-center">
-        <div className="placeholder relative">
+        <div className="placeholder relative" style={{ width: "256px", height: "384px" }}>
           {loading && (
             <p className="absolute w-full text-center text-white top-1/2 transform -translate-y-1/2">
               Loading...
@@ -182,8 +202,6 @@ export default function Home() {
               src={card.imageUrl}
               alt={card.name}
               className="absolute top-0 left-0 w-full h-full object-contain rounded-lg shadow-lg"
-              width="250"
-              height="350"
             />
           )}
         </div>
