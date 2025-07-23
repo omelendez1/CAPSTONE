@@ -78,6 +78,7 @@ export default function Home() {
         name: randomCard.name,
         type: randomCard.types?.[0] || "Unknown",
         imageUrl: randomCard.images.large,
+        nationalPokedexNumber: randomCard.nationalPokedexNumbers?.[0] || null,
       });
 
 
