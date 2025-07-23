@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import "./Collection.css";
 
-export default function Collection() {
+export default function Collection({ onRequireLogin }) {
   const [grouped, setGrouped] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(""); // ✅ new error state
+  const [error, setError] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
 
   useEffect(() => {
@@ -12,7 +12,7 @@ export default function Collection() {
       const token = localStorage.getItem("authToken");
 
       if (!token) {
-        setError("❌ You must be logged in to view your collection.");
+        onRequireLogin();
         setLoading(false);
         return;
       }
@@ -20,13 +20,13 @@ export default function Collection() {
       try {
         const res = await fetch("http://localhost:8080/api/collections-grouped", {
           headers: {
-            Authorization: `Bearer ${token}`, // ✅ attach token
+            Authorization: `Bearer ${token}`,
           },
         });
 
         if (!res.ok) {
           if (res.status === 401) {
-            setError("❌ Unauthorized. Please log in again.");
+            onRequireLogin();
           } else {
             setError("❌ Failed to fetch your collection.");
           }
@@ -45,9 +45,24 @@ export default function Collection() {
     };
 
     fetchCollections();
-  }, []);
+  }, [onRequireLogin]);
 
-  // Same rendering logic but with added error handling
+  if (loading) {
+    return (
+      <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "1.25rem" }}>
+        Loading your Pokémon collection...
+      </p>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "2rem" }}>
+        <p style={{ color: "red", fontSize: "1.2rem" }}>{error}</p>
+      </div>
+    );
+  }
+
   const renderSection = (title, cards) => (
     <section style={{ marginBottom: "3rem" }}>
       <h2 style={{ textAlign: "center", fontSize: "1.75rem", marginBottom: "1rem" }}>
@@ -80,22 +95,6 @@ export default function Collection() {
     </section>
   );
 
-  if (loading) {
-    return (
-      <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "1.25rem" }}>
-        Loading your Pokémon collection...
-      </p>
-    );
-  }
-
-  if (error) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "2rem" }}>
-        <p style={{ color: "red", fontSize: "1.2rem" }}>{error}</p>
-      </div>
-    );
-  }
-
   return (
     <div style={{ padding: "2rem" }}>
       <h1 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "2rem" }}>
@@ -116,7 +115,7 @@ export default function Collection() {
         <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
           <div
             className="modal-content"
-            onClick={(e) => e.stopPropagation()} // prevents closing when clicking inside modal
+            onClick={(e) => e.stopPropagation()}
           >
             <button className="close-btn" onClick={() => setSelectedCard(null)}>
               ✖

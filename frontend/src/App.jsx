@@ -11,7 +11,7 @@ import About from "./components/About";
 export default function App() {
   const [showLogin, setShowLogin] = useState(false);
 
-  // function to show modal from anywhere
+  // Callback to show the login modal from child components
   const handleRequireLogin = () => {
     setShowLogin(true);
   };
@@ -19,20 +19,17 @@ export default function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
-        {/* Header + Nav */}
+        {/* Header + Navigation Bar */}
         <ThemeHeader />
         <NavBar onLoginClick={() => setShowLogin(true)} />
 
         {/* Routes */}
         <Routes>
           <Route path="/" element={<Home />} />
-          
-          {/* Pass onRequireLogin into Collection */}
           <Route
             path="/collection"
             element={<Collection onRequireLogin={handleRequireLogin} />}
           />
-
           <Route path="/about" element={<About />} />
         </Routes>
 
