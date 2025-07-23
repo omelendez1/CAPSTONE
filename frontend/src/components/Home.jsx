@@ -112,7 +112,7 @@ export default function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Attach JWT token
+          Authorization: `Bearer ${token}`, 
         },
         body: JSON.stringify(card),
       });
@@ -202,6 +202,8 @@ export default function Home() {
               src={card.imageUrl}
               alt={card.name}
               className="absolute top-0 left-0 w-full h-full object-contain rounded-lg shadow-lg"
+               width="258"
+              height="387"
             />
           )}
         </div>
