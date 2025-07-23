@@ -4,29 +4,50 @@ import "./Collection.css";
 export default function Collection() {
   const [grouped, setGrouped] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedCard, setSelectedCard] = useState(null); // <-- new state for modal
+  const [error, setError] = useState(""); // ✅ new error state
+  const [selectedCard, setSelectedCard] = useState(null);
 
   useEffect(() => {
-    fetch("/api/collections-grouped")
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchCollections = async () => {
+      const token = localStorage.getItem("authToken");
+
+      if (!token) {
+        setError("❌ You must be logged in to view your collection.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:8080/api/collections-grouped", {
+          headers: {
+            Authorization: `Bearer ${token}`, // ✅ attach token
+          },
+        });
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            setError("❌ Unauthorized. Please log in again.");
+          } else {
+            setError("❌ Failed to fetch your collection.");
+          }
+          setLoading(false);
+          return;
+        }
+
+        const data = await res.json();
         setGrouped(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("❌ Failed to load collections:", err);
+        setError("❌ Something went wrong loading your collection.");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchCollections();
   }, []);
 
-  if (loading) {
-    return (
-      <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "1.25rem" }}>
-        Loading your Pokémon collection...
-      </p>
-    );
-  }
-
+  // Same rendering logic but with added error handling
   const renderSection = (title, cards) => (
     <section style={{ marginBottom: "3rem" }}>
       <h2 style={{ textAlign: "center", fontSize: "1.75rem", marginBottom: "1rem" }}>
@@ -43,7 +64,7 @@ export default function Collection() {
             <div
               className="card-item"
               key={card._id}
-              onClick={() => setSelectedCard(card)} // open modal on click
+              onClick={() => setSelectedCard(card)}
             >
               <img
                 src={card.imageUrl || "https://via.placeholder.com/200"}
@@ -58,6 +79,22 @@ export default function Collection() {
       )}
     </section>
   );
+
+  if (loading) {
+    return (
+      <p style={{ textAlign: "center", marginTop: "1rem", fontSize: "1.25rem" }}>
+        Loading your Pokémon collection...
+      </p>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "2rem" }}>
+        <p style={{ color: "red", fontSize: "1.2rem" }}>{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "2rem" }}>
