@@ -209,7 +209,7 @@ app.get("/api/random-card", async (req, res) => {
 });
 
 /* ================================
-   4️⃣ SERVER START
+SERVER START
 ================================ */
 const PORT = 8080;
 app.listen(PORT, () =>
