@@ -6,7 +6,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState(0);
   const [cooldownMessage, setCooldownMessage] = useState("");
-  const [loginWarning, setLoginWarning] = useState(""); // ✅ NEW: warning for not logged in
+  const [loginWarning, setLoginWarning] = useState(""); // warning for not logged in
 
   // Load tokens from localStorage on mount
   useEffect(() => {
@@ -48,14 +48,14 @@ export default function Home() {
     setCooldownMessage("✅ You earned +4 tokens for today!");
   };
 
-  // ✅ Check login before generating a card
+  // Check login before generating a card
   const fetchRandomCard = async () => {
     const token = localStorage.getItem("authToken");
 
     if (!token) {
       setLoginWarning("⚠️ You must log in to generate random cards!");
       // auto-clear after 3 seconds
-      setTimeout(() => setLoginWarning(""), 3000);
+      setTimeout(() => setLoginWarning(""), 8000);
       return;
     }
 
@@ -70,7 +70,7 @@ export default function Home() {
     try {
       const response = await fetch("http://localhost:8080/api/random-card", {
         headers: {
-          Authorization: `Bearer ${token}`, // ✅ ensure token is sent if required
+          Authorization: `Bearer ${token}`, //ensure token is sent if required
         },
       });
 
@@ -182,7 +182,7 @@ export default function Home() {
         </p>
       )}
 
-      {/* ✅ Show login warning if not logged in */}
+      {/* Show login warning if not logged in */}
       {loginWarning && (
         <p style={{ fontSize: "0.9rem", color: "red", marginBottom: "0.5rem" }}>
           {loginWarning}
