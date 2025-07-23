@@ -1,11 +1,33 @@
 import mongoose from "mongoose";
 
 const cardSchema = new mongoose.Schema({
-  name: String,
-  type: String,
-  imageUrl: String,
-  nationalPokedexNumber: Number,
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // new user- or userId
+  name: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    default: "Unknown",
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  nationalPokedexNumber: {
+    type: Number,
+    default: 0,
+  },
+
+  // link card to logged-in user
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 
-export default mongoose.model("Card", cardSchema);
+// Add timestamps (createdAt, updatedAt)
+cardSchema.set("timestamps", true);
+
+const Card = mongoose.model("Card", cardSchema);
+export default Card;
