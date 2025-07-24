@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import tokenIcon from "../assets/token.png";
 
-//  Centralized backend URL
+// ✅ Always use deployed backend URL
 const API_BASE_URL = "https://capstone-backend-o1hj.onrender.com";
 
 export default function Home() {
@@ -55,13 +55,12 @@ export default function Home() {
     } catch (err) {
       console.error("❌ Claim tokens error:", err);
       setCooldownMessage(
-        err.response?.data?.error ||
-          "Failed to claim tokens. Try again tomorrow!"
+        err.response?.data?.error || "Failed to claim tokens. Try again tomorrow!"
       );
     }
   };
 
-  // ✅ Fetch random card
+  // ✅ Fetch random card from backend
   const fetchRandomCard = async () => {
     const jwt = localStorage.getItem("authToken");
     if (!jwt) {
