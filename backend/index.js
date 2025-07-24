@@ -174,7 +174,7 @@ app.post("/api/auth/register", async (req, res) => {
 });
 
 /* ================================
-  ✅ DELETE USER ROUTE (with card cleanup)
+  DELETE USER ROUTE (with card cleanup)
 ================================ */
 app.delete("/api/auth/delete", async (req, res) => {
   try {
@@ -389,7 +389,7 @@ app.get("/api/random-card", async (req, res) => {
 });
 
 /* ================================
-  ✅ REACT FRONTEND SERVING LOGIC
+   REACT FRONTEND SERVING LOGIC
   (Add after all backend routes)
 ================================ */
 app.use(express.static(path.join(__dirname, "public")));
