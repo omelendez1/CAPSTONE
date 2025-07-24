@@ -13,14 +13,13 @@ A full-stack MERN (MongoDB, Express, React, Node) web application that allows us
 ## 📸 Screenshots
 
 - **Landing Page / Home View**  
-![Home Screenshot](./public/1Home.jpg)
 ![Home Screenshot](https://github.com/omelendez1/CAPSTONE/raw/main/frontend/public/1%20Home.jpg)
 
 - **Card Generation View**  
-![Card Generation Screenshot](./public/2Collection.jpg)
+![Card Generation Screenshot](https://github.com/omelendez1/CAPSTONE/blob/main/frontend/public/2%20Collection.jpg)
 
 - **Delete Profile Confirmation Modal**  
-![Delete Profile Screenshot](./public/3delete.jpg)
+![Delete Profile Screenshot](https://github.com/omelendez1/CAPSTONE/blob/main/frontend/public/3%20delete.jpg)
 
 ---
 
