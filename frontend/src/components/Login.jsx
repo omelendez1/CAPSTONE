@@ -15,10 +15,10 @@ export default function Login({ onClose }) {
 
   const navigate = useNavigate();
 
-  // ✅ Function to go Home and close modal
+  // Return Home + close modal
   const handleReturnHome = () => {
-    onClose?.(); // close modal if provided
-    navigate("/"); // navigate back to home
+    onClose?.();
+    navigate("/");
   };
 
   // Check if already logged in when modal opens
@@ -45,7 +45,6 @@ export default function Login({ onClose }) {
       const data = await res.json();
       if (!res.ok) return setMessage(data.error || "Login failed");
 
-      // Save token + email
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("userEmail", email);
 
@@ -54,8 +53,8 @@ export default function Login({ onClose }) {
       setLoggedEmail(email);
 
       setTimeout(() => {
-        onClose(); // close modal
-        window.location.reload(); // refresh navbar state
+        onClose();
+        window.location.reload();
       }, 500);
     } catch (err) {
       console.error("Login error:", err);
@@ -112,40 +111,46 @@ export default function Login({ onClose }) {
     setMessage("✅ Logged out successfully!");
     setTimeout(() => {
       onClose();
-      window.location.reload(); // refresh navbar
+      window.location.reload();
     }, 500);
   };
 
   return (
     <div className="login-modal-overlay">
       <div className="login-modal-content">
-        {/* Close button */}
-        <button className="modal-close-btn" onClick={onClose} aria-label="Close login modal">
+        {/* Round X close button top-right */}
+        <button className="modal-close-btn" onClick={onClose}>
           ✕
         </button>
 
-        {/*  If logged in already, show logout UI */}
+        {/* Header text */}
+        <h2 className="text-2xl font-bold mb-4">
+          {isLoggedIn
+            ? "You’re logged in"
+            : forgotMode
+            ? "Forgot Password"
+            : "Login"}
+        </h2>
+
+        {/* Logged in UI */}
         {isLoggedIn ? (
           <>
-            <h2 className="text-2xl font-bold mb-4">You’re logged in</h2>
             <p className="mb-4 text-gray-700">
               Logged in as <strong>{loggedEmail}</strong>
             </p>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
-            >
-              Log out
-            </button>
-
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+              >
+                Log out
+              </button>
+            </div>
             {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
           </>
         ) : (
           <>
-            <h2 className="text-2xl font-bold mb-4">
-              {forgotMode ? "Forgot Password" : "Login"}
-            </h2>
-
+            {/* Login / Forgot Password forms */}
             {!forgotMode ? (
               <form onSubmit={handleLogin} className="space-y-4 login-form">
                 <input
@@ -164,7 +169,7 @@ export default function Login({ onClose }) {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <div className="button-row">
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
                   <button
                     type="submit"
                     className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
@@ -183,7 +188,7 @@ export default function Login({ onClose }) {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
-                <div className="button-row">
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
                   <button
                     type="submit"
                     className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600"
@@ -203,7 +208,7 @@ export default function Login({ onClose }) {
 
             {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
 
-            {/* Registration only shown if not logged in */}
+            {/* Registration section */}
             <div className="register-section mt-10 pt-4 border-t">
               <h3 className="font-semibold mb-2">New User Registration</h3>
               <form onSubmit={handleRegister} className="space-y-4">
@@ -224,7 +229,7 @@ export default function Login({ onClose }) {
                   required
                 />
 
-                {/* ✅ Footer with Return Home on left, Register on right */}
+                {/* Footer row: Return Home left + Register right */}
                 <div
                   style={{
                     display: "flex",
@@ -233,7 +238,6 @@ export default function Login({ onClose }) {
                     marginTop: "1rem",
                   }}
                 >
-                  {/* ⬅ Return Home link */}
                   <span
                     style={{
                       cursor: "pointer",
@@ -245,7 +249,6 @@ export default function Login({ onClose }) {
                     ⬅ Return Home
                   </span>
 
-                  {/* Register button */}
                   <button
                     type="submit"
                     className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
