@@ -13,13 +13,13 @@ A full-stack MERN (MongoDB, Express, React, Node) web application that allows us
 ## 📸 Screenshots
 
 - **Landing Page / Home View**  
-![Home Screenshot](public/1_Home.jpg)
+![Home Screenshot](./public/1Home.jpg)
 
 - **Card Generation View**  
-![Card Generation Screenshot](./public/2_Collection.jpg)
+![Card Generation Screenshot](./public/2Collection.jpg)
 
 - **Delete Profile Confirmation Modal**  
-![Delete Profile Screenshot](./public/3_delete.jpg)
+![Delete Profile Screenshot](./public/3delete.jpg)
 
 ---
 
