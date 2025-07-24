@@ -6,8 +6,7 @@ A full-stack MERN (MongoDB, Express, React, Node) web application that allows us
 
 ## 🌐 Live Demo
 
-[👉 **View the deployed app on Netlify**](#)  
-(*Replace `#` with your actual Netlify link once deployed.*)
+[👉 **View the deployed app on Netlify**](#)
 
 ---
 
