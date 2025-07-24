@@ -1,6 +1,9 @@
 import { useState } from "react";
 import "./Login.css";
 
+// ✅ Add backend URL
+const API_BASE_URL = "https://capstone-backend-o1hj.onrender.com";
+
 export default function DeleteConfirmationModal({ onClose, onDeleteSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +22,8 @@ export default function DeleteConfirmationModal({ onClose, onDeleteSuccess }) {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/auth/delete", {
+      // ✅ Use full backend URL
+      const res = await fetch(`${API_BASE_URL}/api/auth/delete`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -34,7 +38,7 @@ export default function DeleteConfirmationModal({ onClose, onDeleteSuccess }) {
 
       setMessage("✅ Profile successfully deleted.");
 
-      // Clear local storage, notify parent
+      // ✅ Clear local storage & notify parent
       localStorage.removeItem("authToken");
       localStorage.removeItem("userEmail");
 
