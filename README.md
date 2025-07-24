@@ -69,9 +69,9 @@ Users can:
 - **Database:** MongoDB (Atlas)  
 - **Authentication:** JWT (JSON Web Token)  
 - **Deployment:**  
-  - Frontend → Netlify (or Vercel)  
-  - Backend → Render/Heroku  
-  - Database → MongoDB Atlas  
+  - Frontend → Netlify   
+  - Backend → Render (Node.js)
+  - Database → MongoDB Atlas 
 
 ---
 
