@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import tokenIcon from "../assets/token.png";
 
 export default function Home() {
@@ -6,56 +7,63 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState(0);
   const [cooldownMessage, setCooldownMessage] = useState("");
-  const [loginWarning, setLoginWarning] = useState(""); // warning for not logged in
+  const [loginWarning, setLoginWarning] = useState("");
 
-  // Load tokens from localStorage on mount
+  // ✅ Fetch token balance for logged-in user
   useEffect(() => {
-    const savedTokens = parseInt(localStorage.getItem("tokenCount"), 10);
-    if (!isNaN(savedTokens)) {
-      setTokens(savedTokens);
-    }
+    const fetchUserTokens = async () => {
+      const jwt = localStorage.getItem("authToken");
+      if (!jwt) {
+        setTokens(0);
+        return; // logged out → show 0
+      }
+
+      try {
+        const res = await axios.get("http://localhost:8080/api/auth/tokens", {
+          headers: { Authorization: `Bearer ${jwt}` },
+        });
+        setTokens(res.data.tokens);
+      } catch (err) {
+        console.error("❌ Failed to fetch token balance:", err);
+        setTokens(0);
+      }
+    };
+
+    fetchUserTokens();
   }, []);
 
-  const updateTokenStorage = (newTokens) => {
-    setTokens(newTokens);
-    localStorage.setItem("tokenCount", newTokens);
-  };
-
-  // check if last earned date is today
-  const isSameDay = (dateString) => {
-    if (!dateString) return false;
-    const savedDate = new Date(dateString).toDateString();
-    const today = new Date().toDateString();
-    return savedDate === today;
-  };
-
-  // Earn +4 tokens once per day
-  const earnTokens = () => {
-    const lastEarnedDate = localStorage.getItem("lastEarnedDate");
-
-    if (isSameDay(lastEarnedDate)) {
-      setCooldownMessage(
-        "⏳ You’ve already claimed your daily tokens. Try again tomorrow!"
-      );
+  // ✅ Claim daily +4 tokens from backend
+  const earnTokens = async () => {
+    const jwt = localStorage.getItem("authToken");
+    if (!jwt) {
+      setLoginWarning("⚠️ You must log in to claim tokens!");
       return;
     }
 
-    const newTokens = tokens + 4;
-    updateTokenStorage(newTokens);
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/api/auth/claim-tokens",
+        {},
+        { headers: { Authorization: `Bearer ${jwt}` } }
+      );
 
-    // Save today’s date to enforce cooldown
-    localStorage.setItem("lastEarnedDate", new Date().toISOString());
-    setCooldownMessage("✅ You earned +4 tokens for today!");
+      setTokens(res.data.tokens);
+      setCooldownMessage(res.data.message);
+    } catch (err) {
+      console.error("❌ Claim tokens error:", err);
+      setCooldownMessage(
+        err.response?.data?.error ||
+          "Failed to claim tokens. Try again tomorrow!"
+      );
+    }
   };
 
-  // Check login before generating a card
+  // ✅ Fetch random card, deduct token after successful draw
   const fetchRandomCard = async () => {
-    const token = localStorage.getItem("authToken");
-
-    if (!token) {
+    const jwt = localStorage.getItem("authToken");
+    if (!jwt) {
       setLoginWarning("⚠️ You must log in to generate random cards!");
-      // auto-clear after 3 seconds
-      setTimeout(() => setLoginWarning(""), 8000);
+      setTimeout(() => setLoginWarning(""), 5000);
       return;
     }
 
@@ -68,15 +76,13 @@ export default function Home() {
     setCard(null);
 
     try {
-      const response = await fetch("http://localhost:8080/api/random-card", {
-        headers: {
-          Authorization: `Bearer ${token}`, //ensure token is sent if required
-        },
+      const res = await fetch("http://localhost:8080/api/random-card", {
+        headers: { Authorization: `Bearer ${jwt}` },
       });
 
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
 
-      const data = await response.json();
+      const data = await res.json();
       const randomCard = data.data[0];
 
       setCard({
@@ -86,9 +92,8 @@ export default function Home() {
         nationalPokedexNumber: randomCard.nationalPokedexNumbers?.[0] || null,
       });
 
-      // Consume one token after success
-      updateTokenStorage(tokens - 1);
-      setLoginWarning(""); // clear any old warning if successful
+      // ✅ Deduct ONE token locally after generating a card
+      setTokens((prev) => prev - 1);
     } catch (err) {
       console.error("Error fetching card:", err);
       alert("Failed to fetch card. Backend proxy might be down.");
@@ -97,29 +102,29 @@ export default function Home() {
     }
   };
 
-  // Save card securely with JWT token
+  // ✅ Save card securely with JWT token
   const saveCardToDB = async () => {
     if (!card) return;
 
     try {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
+      const jwt = localStorage.getItem("authToken");
+      if (!jwt) {
         alert("❌ You must be logged in to save cards!");
         return;
       }
 
-      const response = await fetch("http://localhost:8080/api/cards", {
+      const res = await fetch("http://localhost:8080/api/cards", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${jwt}`,
         },
         body: JSON.stringify(card),
       });
 
-      const result = await response.json();
+      const result = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
         alert(result.error || "Failed to save card");
         return;
       }
@@ -133,7 +138,6 @@ export default function Home() {
 
   return (
     <div className="text-center p-4">
-      {/* Header */}
       <h2 className="text-xl font-bold mb-4">Welcome to the Home Page</h2>
 
       {/* Token Row */}
@@ -175,14 +179,13 @@ export default function Home() {
         </button>
       </div>
 
-      {/* Show cooldown or success message */}
+      {/* Cooldown / login messages */}
       {cooldownMessage && (
         <p style={{ fontSize: "0.9rem", color: "gray", marginBottom: "0.5rem" }}>
           {cooldownMessage}
         </p>
       )}
 
-      {/* Show login warning if not logged in */}
       {loginWarning && (
         <p style={{ fontSize: "0.9rem", color: "red", marginBottom: "0.5rem" }}>
           {loginWarning}
@@ -191,7 +194,10 @@ export default function Home() {
 
       {/* Card Display */}
       <div className="mt-4 flex justify-center">
-        <div className="placeholder relative" style={{ width: "256px", height: "384px" }}>
+        <div
+          className="placeholder relative"
+          style={{ width: "256px", height: "384px" }}
+        >
           {loading && (
             <p className="absolute w-full text-center text-white top-1/2 transform -translate-y-1/2">
               Loading...
@@ -202,8 +208,6 @@ export default function Home() {
               src={card.imageUrl}
               alt={card.name}
               className="absolute top-0 left-0 w-full h-full object-contain rounded-lg shadow-lg"
-               width="258"
-              height="387"
             />
           )}
         </div>
