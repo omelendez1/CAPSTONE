@@ -6,16 +6,21 @@ export default function Collection({ onRequireLogin }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedCard, setSelectedCard] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
     const fetchCollections = async () => {
       const token = localStorage.getItem("authToken");
 
       if (!token) {
-        onRequireLogin();
+        // Not logged in
+        setLoggedIn(false);
+        onRequireLogin?.(); // optional call to parent
         setLoading(false);
         return;
       }
+
+      setLoggedIn(true);
 
       try {
         const res = await fetch("http://localhost:8080/api/collections-grouped", {
@@ -26,7 +31,8 @@ export default function Collection({ onRequireLogin }) {
 
         if (!res.ok) {
           if (res.status === 401) {
-            onRequireLogin();
+            setLoggedIn(false);
+            onRequireLogin?.();
           } else {
             setError("❌ Failed to fetch your collection.");
           }
@@ -65,11 +71,22 @@ export default function Collection({ onRequireLogin }) {
 
   const renderSection = (title, cards) => (
     <section style={{ marginBottom: "3rem" }}>
-      <h2 style={{ textAlign: "center", fontSize: "1.75rem", marginBottom: "1rem" }}>
+      <h2
+        style={{
+          textAlign: "center",
+          fontSize: "1.75rem",
+          marginBottom: "1rem",
+        }}
+      >
         {title}
       </h2>
 
-      {cards.length === 0 ? (
+      {!loggedIn ? (
+        // ⚠️ If not logged in, just keep a placeholder
+        <p style={{ textAlign: "center", color: "#aaa" }}>
+          (Log in to see saved cards for this generation)
+        </p>
+      ) : cards.length === 0 ? (
         <p style={{ textAlign: "center", color: "#666" }}>
           No cards saved yet for this generation.
         </p>
@@ -87,7 +104,9 @@ export default function Collection({ onRequireLogin }) {
               />
               <h3>{card.name}</h3>
               <p>Type: {card.type}</p>
-              {card.nationalPokedexNumber && <p>#{card.nationalPokedexNumber}</p>}
+              {card.nationalPokedexNumber && (
+                <p>#{card.nationalPokedexNumber}</p>
+              )}
             </div>
           ))}
         </div>
@@ -97,26 +116,31 @@ export default function Collection({ onRequireLogin }) {
 
   return (
     <div style={{ padding: "2rem" }}>
+      {/* ✅ Show warning if not logged in */}
+      {!loggedIn && (
+        <div style={{ textAlign: "center", color: "red", marginBottom: "1rem", fontWeight: "bold" }}>
+          ⚠️ You must log in to view & generate random cards!
+        </div>
+      )}
+
       <h1 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "2rem" }}>
         Your Pokémon Collection
       </h1>
 
-      {renderSection("Generation I (Kanto)", grouped.gen1)}
-      {renderSection("Generation II (Johto)", grouped.gen2)}
-      {renderSection("Generation III (Hoenn)", grouped.gen3)}
-      {renderSection("Generation IV (Sinnoh)", grouped.gen4)}
-      {renderSection("Generation V (Unova)", grouped.gen5)}
-      {renderSection("Generation VI (Kalos)", grouped.gen6)}
-      {renderSection("Generation VII (Alola)", grouped.gen7)}
-      {renderSection("Generation VIII (Galar)", grouped.gen8)}
+      {/* ✅ Always keep generation layout visible */}
+      {renderSection("Generation I (Kanto)", grouped?.gen1 || [])}
+      {renderSection("Generation II (Johto)", grouped?.gen2 || [])}
+      {renderSection("Generation III (Hoenn)", grouped?.gen3 || [])}
+      {renderSection("Generation IV (Sinnoh)", grouped?.gen4 || [])}
+      {renderSection("Generation V (Unova)", grouped?.gen5 || [])}
+      {renderSection("Generation VI (Kalos)", grouped?.gen6 || [])}
+      {renderSection("Generation VII (Alola)", grouped?.gen7 || [])}
+      {renderSection("Generation VIII (Galar)", grouped?.gen8 || [])}
 
-      {/* Modal overlay for selected card */}
+      {/* ✅ Modal overlay for selected card */}
       {selectedCard && (
         <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedCard(null)}>
               ✖
             </button>
