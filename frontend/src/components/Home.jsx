@@ -208,6 +208,8 @@ export default function Home() {
               src={card.imageUrl}
               alt={card.name}
               className="absolute top-0 left-0 w-full h-full object-contain rounded-lg shadow-lg"
+              width="258"
+              height="387"
             />
           )}
         </div>
