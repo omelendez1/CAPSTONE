@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import tokenIcon from "../assets/token.png";
 
-// ✅ Always use deployed backend URL
+// Always use deployed backend URL
 const API_BASE_URL = "https://capstone-backend-o1hj.onrender.com";
 
 export default function Home() {
@@ -60,7 +60,7 @@ export default function Home() {
     }
   };
 
-  // ✅ Fetch random card from backend
+  // ✅ Fetch random card & sync token balance from backend
   const fetchRandomCard = async () => {
     const jwt = localStorage.getItem("authToken");
     if (!jwt) {
@@ -82,7 +82,11 @@ export default function Home() {
         headers: { Authorization: `Bearer ${jwt}` },
       });
 
-      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.error || "Failed to fetch card");
+        throw new Error(`API error: ${res.status}`);
+      }
 
       const data = await res.json();
       const randomCard = data.data[0];
@@ -91,11 +95,12 @@ export default function Home() {
         name: randomCard.name,
         type: randomCard.types?.[0] || "Unknown",
         imageUrl: randomCard.images.large,
-        nationalPokedexNumber: randomCard.nationalPokedexNumbers?.[0] || null,
+        nationalPokedexNumber:
+          randomCard.nationalPokedexNumbers?.[0] || null,
       });
 
-      // Deduct ONE token locally after generating a card
-      setTokens((prev) => prev - 1);
+      // ✅ Sync with backend’s remaining token count
+      setTokens(data.remainingTokens);
     } catch (err) {
       console.error("Error fetching card:", err);
       alert("Failed to fetch card. Backend proxy might be down.");
@@ -161,7 +166,7 @@ export default function Home() {
             cursor: "pointer",
           }}
           onClick={earnTokens}
-          title="Click once per day to earn +4 tokens"
+          title="Click once per day to earn daily tokens"
         >
           <img
             src={tokenIcon}
@@ -183,13 +188,25 @@ export default function Home() {
 
       {/* Cooldown / login messages */}
       {cooldownMessage && (
-        <p style={{ fontSize: "0.9rem", color: "gray", marginBottom: "0.5rem" }}>
+        <p
+          style={{
+            fontSize: "0.9rem",
+            color: "gray",
+            marginBottom: "0.5rem",
+          }}
+        >
           {cooldownMessage}
         </p>
       )}
 
       {loginWarning && (
-        <p style={{ fontSize: "0.9rem", color: "red", marginBottom: "0.5rem" }}>
+        <p
+          style={{
+            fontSize: "0.9rem",
+            color: "red",
+            marginBottom: "0.5rem",
+          }}
+        >
           {loginWarning}
         </p>
       )}

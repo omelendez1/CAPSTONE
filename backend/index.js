@@ -185,20 +185,15 @@ app.delete("/api/auth/delete", async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    // Find user by email
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Compare password with stored hash
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Delete all cards belonging to this user
     await Card.deleteMany({ userId: user._id });
-
-    // Delete user record
     await User.deleteOne({ _id: user._id });
 
     return res.json({ message: "✅ User and all associated cards deleted successfully" });
@@ -352,17 +347,22 @@ app.post("/api/admin/fix-pokedex", async (req, res) => {
 });
 
 /* ================================
-  POKÉMON API PROXY
+  RANDOM CARD ROUTE (NOW PROTECTED + TOKEN DEDUCTION)
 ================================ */
-app.get("/", (req, res) => {
-  res.send("✅ Hello from backend");
-});
-
-app.get("/api/random-card", async (req, res) => {
+app.get("/api/random-card", authMiddleware, async (req, res) => {
   try {
-    const apiKey = process.env.POKEMON_API_KEY;
-    console.log("🔑 Using API Key:", apiKey);
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
 
+    if (user.tokens <= 0) {
+      return res.status(400).json({ error: "No tokens left. Claim more before generating cards!" });
+    }
+
+    // Deduct 1 token before generating
+    user.tokens -= 1;
+    await user.save();
+
+    const apiKey = process.env.POKEMON_API_KEY;
     const url = "https://api.pokemontcg.io/v2/cards?pageSize=250&page=1";
     const response = await fetch(url, {
       headers: { "X-Api-Key": apiKey },
@@ -381,17 +381,20 @@ app.get("/api/random-card", async (req, res) => {
     const cards = data.data;
     const randomCard = cards[Math.floor(Math.random() * cards.length)];
 
-    console.log("✅ Random card selected:", randomCard.name);
-    res.json({ data: [randomCard] });
+    console.log(`✅ Random card selected: ${randomCard.name}`);
+
+    res.json({
+      data: [randomCard],
+      remainingTokens: user.tokens,
+    });
   } catch (err) {
-    console.error("❌ Proxy failed:", err);
-    res.status(500).json({ error: "Failed to fetch card from Pokémon API" });
+    console.error("❌ Failed to fetch random card:", err);
+    res.status(500).json({ error: "Server error fetching card" });
   }
 });
 
 /* ================================
    REACT FRONTEND SERVING LOGIC
-  (Add after all backend routes)
 ================================ */
 app.use(express.static(path.join(__dirname, "public")));
 
