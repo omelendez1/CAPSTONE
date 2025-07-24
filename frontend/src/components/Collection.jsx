@@ -23,7 +23,7 @@ export default function Collection({ onRequireLogin }) {
       setLoggedIn(true);
 
       try {
-        const res = await fetch("http://localhost:8080/api/collections-grouped", {
+        const res = await fetch("/api/collections-grouped", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

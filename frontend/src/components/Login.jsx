@@ -44,7 +44,7 @@ export default function Login({ onClose }) {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -75,7 +75,7 @@ export default function Login({ onClose }) {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await fetch("http://localhost:8080/api/auth/forgot-password", {
+      const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -94,7 +94,7 @@ export default function Login({ onClose }) {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await fetch("http://localhost:8080/api/auth/register", {
+      const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: newUserEmail, password: newUserPassword }),

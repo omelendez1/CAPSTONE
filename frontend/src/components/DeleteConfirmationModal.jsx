@@ -19,7 +19,7 @@ export default function DeleteConfirmationModal({ onClose, onDeleteSuccess }) {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:8080/api/auth/delete", {
+      const res = await fetch("/api/auth/delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

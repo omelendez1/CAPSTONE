@@ -19,7 +19,7 @@ export default function Home() {
       }
 
       try {
-        const res = await axios.get("http://localhost:8080/api/auth/tokens", {
+        const res = await axios.get("/api/auth/tokens", {
           headers: { Authorization: `Bearer ${jwt}` },
         });
         setTokens(res.data.tokens);
@@ -42,7 +42,7 @@ export default function Home() {
 
     try {
       const res = await axios.post(
-        "http://localhost:8080/api/auth/claim-tokens",
+        "/api/auth/claim-tokens",
         {},
         { headers: { Authorization: `Bearer ${jwt}` } }
       );
@@ -76,7 +76,7 @@ export default function Home() {
     setCard(null);
 
     try {
-      const res = await fetch("http://localhost:8080/api/random-card", {
+      const res = await fetch("/api/random-card", {
         headers: { Authorization: `Bearer ${jwt}` },
       });
 
@@ -113,7 +113,7 @@ export default function Home() {
         return;
       }
 
-      const res = await fetch("http://localhost:8080/api/cards", {
+      const res = await fetch("/api/cards", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

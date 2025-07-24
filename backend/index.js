@@ -6,13 +6,37 @@ import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import path from "path";                     // <-- NEW import for __dirname fix
+import { fileURLToPath } from "url";         // <-- NEW import for __dirname fix
+
 import Card from "./models/Card.js";
 
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: "http://localhost:5173" }));
+
+// ===== Updated CORS to allow multiple origins =====
+const allowedOrigins = [
+  "http://localhost:5173",                 // React local dev server
+  "https://your-netlify-site.netlify.app" // <-- Replace with your actual Netlify URL
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // Allow tools like Postman or curl with no origin
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `CORS policy: The origin ${origin} is not allowed by CORS.`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
+
 app.use(express.json());
+
+// ===== Fix __dirname for ES modules =====
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Connect to MongoDB
 mongoose
@@ -63,7 +87,6 @@ function authMiddleware(req, res, next) {
 /* ================================
     AUTH ROUTES
 ================================ */
-
 // LOGIN
 app.post("/api/auth/login", async (req, res) => {
   try {
@@ -366,9 +389,19 @@ app.get("/api/random-card", async (req, res) => {
 });
 
 /* ================================
+  ✅ REACT FRONTEND SERVING LOGIC
+  (Add after all backend routes)
+================================ */
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("*", (_, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+/* ================================
   SERVER START
 ================================ */
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () =>
-  console.log(`✅ Backend running on http://localhost:${PORT}`)
+  console.log(`✅ Backend + React running on http://localhost:${PORT}`)
 );
