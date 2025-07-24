@@ -1,3 +1,4 @@
+/* Login modal background overlay */
 .login-modal-overlay {
   position: fixed;
   top: 0;
@@ -27,39 +28,22 @@
   position: relative;
 }
 
-/*  Round close button top-right */
-.modal-close-btn {
+/* ✅ NEW: clean close icon for top-right corner */
+.modal-close-icon {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 32px;
-  height: 32px;
-  background: #ffffff;
-  color: #333;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1rem;
+  top: 12px;
+  right: 16px;
+  font-size: 1.4rem;
   font-weight: bold;
-  line-height: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  color: #000; /* Black X */
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.modal-close-icon:hover {
+  color: rgb(255, 203, 5); /* Yellow on hover */
 }
 
-.modal-close-btn:hover {
-  background-color: rgb(255, 203, 5);
-  color: black;
-}
-
-.button-row {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: flex-end;
-}
-
+/* Hover effect for other buttons */
 button:hover:not(:disabled) {
   background-color: rgb(255, 203, 5);
   color: black;
@@ -81,6 +65,7 @@ button:hover:not(:disabled) {
   border-top: 1px solid #ddd;
 }
 
+/* Animations */
 @keyframes loginZoomIn {
   from {
     transform: scale(0.6);
@@ -90,4 +75,36 @@ button:hover:not(:disabled) {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* ========================
+   Welcome Modal Styles
+=========================== */
+.welcome-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Higher than login modal */
+}
+
+.welcome-modal-content {
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 480px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  animation: loginZoomIn 0.25s ease-in-out;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  position: relative;
 }

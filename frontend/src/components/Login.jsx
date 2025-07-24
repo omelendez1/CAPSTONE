@@ -130,15 +130,15 @@ export default function Login({ onClose }) {
 
   return (
     <>
-      {/* ✅ Show WelcomeModal if triggered */}
+      {/* Show WelcomeModal if triggered */}
       {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
 
       <div className="login-modal-overlay">
         <div className="login-modal-content">
-          {/* Round X close button top-right */}
-          <button className="modal-close-btn" onClick={onClose}>
+          {/* ✅ Clean, conventional close icon top-right */}
+          <span className="modal-close-icon" onClick={onClose}>
             ✕
-          </button>
+          </span>
 
           {/* Header text */}
           <h2 className="text-2xl font-bold mb-4">
@@ -155,7 +155,13 @@ export default function Login({ onClose }) {
               <p className="mb-4 text-gray-700">
                 Logged in as <strong>{loggedEmail}</strong>
               </p>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "0.5rem",
+                }}
+              >
                 <button
                   onClick={handleLogout}
                   className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
@@ -163,7 +169,9 @@ export default function Login({ onClose }) {
                   Log out
                 </button>
               </div>
-              {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
+              {message && (
+                <p className="mt-4 text-sm text-gray-700">{message}</p>
+              )}
             </>
           ) : (
             <>
@@ -196,7 +204,10 @@ export default function Login({ onClose }) {
                   </div>
                 </form>
               ) : (
-                <form onSubmit={handleForgotPassword} className="space-y-4 login-form">
+                <form
+                  onSubmit={handleForgotPassword}
+                  className="space-y-4 login-form"
+                >
                   <input
                     type="email"
                     placeholder="Enter your email"
@@ -223,7 +234,9 @@ export default function Login({ onClose }) {
                 {forgotMode ? "Back to Login" : "Forgot Password?"}
               </p>
 
-              {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
+              {message && (
+                <p className="mt-4 text-sm text-gray-700">{message}</p>
+              )}
 
               {/* Registration section */}
               <div className="register-section mt-10 pt-4 border-t">

@@ -1,26 +1,25 @@
 import React from "react";
 import "./Login.css";
 
+// ✅ Import the video asset so Vite/Webpack bundles it
+import welcomeVideo from "../assets/welcome.mp4";
+
 export default function WelcomeModal({ onClose }) {
   return (
-    <div className="login-modal-overlay" onClick={onClose}>
+    <div className="welcome-modal-overlay" onClick={onClose}>
       <div
-        className="login-modal-content"
+        className="welcome-modal-content"
         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
-        style={{ maxWidth: "480px", minHeight: "320px" }}
       >
-        <button className="modal-close-btn" onClick={onClose} aria-label="Close modal">
-          ✕
-        </button>
-        <h2 style={{ marginBottom: "1rem" }}>Welcome to the App!</h2>
+        <h2 style={{ marginBottom: "1rem" }}>Welcome to the Pokémon Card Collector Game</h2>
         <p style={{ marginBottom: "1.5rem", fontSize: "1.1rem" }}>
-          We're thrilled to have you here. Enjoy exploring the features and may your journey be rewarding.
+          Good luck on your quest to collect every Pokémon card spanning Generations 1 through 8.
         </p>
 
-        {/* Example: embedded video or image */}
+        {/* ✅ Use the imported video here */}
         <div style={{ marginBottom: "1.5rem" }}>
           <video
-            src="/welcome-video.mp4"
+            src={welcomeVideo}
             controls
             style={{ width: "100%", borderRadius: "8px" }}
           >
