@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import tokenIcon from "../assets/token.png";
 
+// ✅ Centralized backend URL
+const API_BASE_URL = "https://capstone-backend-o1hj.onrender.com";
+
 export default function Home() {
   const [card, setCard] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -19,7 +22,7 @@ export default function Home() {
       }
 
       try {
-        const res = await axios.get("/api/auth/tokens", {
+        const res = await axios.get(`${API_BASE_URL}/api/auth/tokens`, {
           headers: { Authorization: `Bearer ${jwt}` },
         });
         setTokens(res.data.tokens);
@@ -32,7 +35,7 @@ export default function Home() {
     fetchUserTokens();
   }, []);
 
-  // ✅ Claim daily +4 tokens from backend
+  // ✅ Claim daily tokens
   const earnTokens = async () => {
     const jwt = localStorage.getItem("authToken");
     if (!jwt) {
@@ -42,7 +45,7 @@ export default function Home() {
 
     try {
       const res = await axios.post(
-        "/api/auth/claim-tokens",
+        `${API_BASE_URL}/api/auth/claim-tokens`,
         {},
         { headers: { Authorization: `Bearer ${jwt}` } }
       );
@@ -58,7 +61,7 @@ export default function Home() {
     }
   };
 
-  // ✅ Fetch random card, deduct token after successful draw
+  // ✅ Fetch random card
   const fetchRandomCard = async () => {
     const jwt = localStorage.getItem("authToken");
     if (!jwt) {
@@ -76,7 +79,7 @@ export default function Home() {
     setCard(null);
 
     try {
-      const res = await fetch("/api/random-card", {
+      const res = await fetch(`${API_BASE_URL}/api/random-card`, {
         headers: { Authorization: `Bearer ${jwt}` },
       });
 
@@ -92,7 +95,7 @@ export default function Home() {
         nationalPokedexNumber: randomCard.nationalPokedexNumbers?.[0] || null,
       });
 
-      // ✅ Deduct ONE token locally after generating a card
+      // Deduct ONE token locally after generating a card
       setTokens((prev) => prev - 1);
     } catch (err) {
       console.error("Error fetching card:", err);
@@ -113,7 +116,7 @@ export default function Home() {
         return;
       }
 
-      const res = await fetch("/api/cards", {
+      const res = await fetch(`${API_BASE_URL}/api/cards`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
