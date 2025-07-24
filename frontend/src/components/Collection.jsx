@@ -116,7 +116,7 @@ export default function Collection({ onRequireLogin }) {
 
   return (
     <div style={{ padding: "2rem" }}>
-      {/* ✅ Show warning if not logged in */}
+      {/*  Show warning if not logged in */}
       {!loggedIn && (
         <div style={{ textAlign: "center", color: "red", marginBottom: "1rem", fontWeight: "bold" }}>
           ⚠️ You must log in to view & generate random cards!
@@ -127,7 +127,7 @@ export default function Collection({ onRequireLogin }) {
         Your Pokémon Collection
       </h1>
 
-      {/* ✅ Always keep generation layout visible */}
+      {/*  Always keep generation layout visible */}
       {renderSection("Generation I (Kanto)", grouped?.gen1 || [])}
       {renderSection("Generation II (Johto)", grouped?.gen2 || [])}
       {renderSection("Generation III (Hoenn)", grouped?.gen3 || [])}
@@ -137,7 +137,7 @@ export default function Collection({ onRequireLogin }) {
       {renderSection("Generation VII (Alola)", grouped?.gen7 || [])}
       {renderSection("Generation VIII (Galar)", grouped?.gen8 || [])}
 
-      {/* ✅ Modal overlay for selected card */}
+      {/*  Modal overlay for selected card */}
       {selectedCard && (
         <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

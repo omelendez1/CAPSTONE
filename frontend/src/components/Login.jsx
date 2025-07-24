@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 export default function Login({ onClose }) {
@@ -12,7 +13,15 @@ export default function Login({ onClose }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loggedEmail, setLoggedEmail] = useState("");
 
-  // ✅ Check if already logged in when modal opens
+  const navigate = useNavigate();
+
+  // ✅ Function to go Home and close modal
+  const handleReturnHome = () => {
+    onClose?.(); // close modal if provided
+    navigate("/"); // navigate back to home
+  };
+
+  // Check if already logged in when modal opens
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     const storedEmail = localStorage.getItem("userEmail");
@@ -22,7 +31,7 @@ export default function Login({ onClose }) {
     }
   }, []);
 
-  // ✅ LOGIN HANDLER
+  // LOGIN HANDLER
   const handleLogin = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -36,7 +45,7 @@ export default function Login({ onClose }) {
       const data = await res.json();
       if (!res.ok) return setMessage(data.error || "Login failed");
 
-      // ✅ Save token + email
+      // Save token + email
       localStorage.setItem("authToken", data.token);
       localStorage.setItem("userEmail", email);
 
@@ -54,7 +63,7 @@ export default function Login({ onClose }) {
     }
   };
 
-  // ✅ FORGOT PASSWORD HANDLER
+  // FORGOT PASSWORD HANDLER
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -73,7 +82,7 @@ export default function Login({ onClose }) {
     }
   };
 
-  // ✅ REGISTER HANDLER
+  // REGISTER HANDLER
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -94,7 +103,7 @@ export default function Login({ onClose }) {
     }
   };
 
-  // ✅ LOGOUT HANDLER
+  // LOGOUT HANDLER
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userEmail");
@@ -115,7 +124,7 @@ export default function Login({ onClose }) {
           ✕
         </button>
 
-        {/* ✅ If logged in already, show logout UI */}
+        {/*  If logged in already, show logout UI */}
         {isLoggedIn ? (
           <>
             <h2 className="text-2xl font-bold mb-4">You’re logged in</h2>
@@ -214,7 +223,29 @@ export default function Login({ onClose }) {
                   onChange={(e) => setNewUserPassword(e.target.value)}
                   required
                 />
-                <div className="button-row">
+
+                {/* ✅ Footer with Return Home on left, Register on right */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginTop: "1rem",
+                  }}
+                >
+                  {/* ⬅ Return Home link */}
+                  <span
+                    style={{
+                      cursor: "pointer",
+                      color: "#555",
+                      textDecoration: "underline",
+                    }}
+                    onClick={handleReturnHome}
+                  >
+                    ⬅ Return Home
+                  </span>
+
+                  {/* Register button */}
                   <button
                     type="submit"
                     className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
