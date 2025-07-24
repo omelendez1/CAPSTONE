@@ -1,4 +1,4 @@
-# Card Generator – MERN Capstone Project
+# Pokemon Card Generator – MERN Capstone Project
 
 A full-stack MERN (MongoDB, Express, React, Node) web application that allows users to **generate, save, and manage custom cards** with authentication, profile management, and CRUD functionality.
 
@@ -173,7 +173,7 @@ Card-Generator/
 ## 👨‍💻 Author
 
 **Oliver Melendez**  
-[GitHub Profile](https://github.com/omelendez1) | [LinkedIn Profile](www.linkedin.com/in/omelendez1)
+[GitHub Profile](https://github.com/omelendez1) | [LinkedIn Profile](https://www.linkedin.com/in/omelendez1/)
 
 ---
 
