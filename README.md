@@ -14,6 +14,7 @@ A full-stack MERN (MongoDB, Express, React, Node) web application that allows us
 
 - **Landing Page / Home View**  
 ![Home Screenshot](./public/1Home.jpg)
+![Home Screenshot](https://github.com/omelendez1/CAPSTONE/raw/main/frontend/public/1%20Home.jpg)
 
 - **Card Generation View**  
 ![Card Generation Screenshot](./public/2Collection.jpg)
