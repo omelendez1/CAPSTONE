@@ -1,4 +1,7 @@
-/* Login modal background overlay */
+/* ================================
+   Login + Modal Shared Styles
+================================ */
+
 .login-modal-overlay {
   position: fixed;
   top: 0;
@@ -9,10 +12,24 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1000; /* Login modal base layer */
 }
 
-.login-modal-content {
+.welcome-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Above Login modal */
+}
+
+.login-modal-content,
+.welcome-modal-content {
   background: #ffffff;
   padding: 2rem;
   border-radius: 12px;
@@ -28,28 +45,44 @@
   position: relative;
 }
 
-/* ✅ NEW: clean close icon for top-right corner */
-.modal-close-icon {
+/* ================================
+   Close Button (Top-Right X)
+================================ */
+.modal-close-btn {
   position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 1.4rem;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  background: transparent; /* transparent now */
+  color: black; /* Always black */
+  border: none;
+  font-size: 1.2rem;
   font-weight: bold;
-  color: #000; /* Black X */
+  line-height: 1;
   cursor: pointer;
-  transition: color 0.2s ease;
-}
-.modal-close-icon:hover {
-  color: rgb(255, 203, 5); /* Yellow on hover */
 }
 
-/* Hover effect for other buttons */
+.modal-close-btn:hover {
+  color: rgb(255, 203, 5);
+}
+
+/* ================================
+   Buttons + Sections
+================================ */
+.button-row {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
 button:hover:not(:disabled) {
   background-color: rgb(255, 203, 5);
   color: black;
 }
 
-.login-modal-content button {
+.login-modal-content button,
+.welcome-modal-content button {
   position: relative;
   border: none;
   padding: 8px 14px;
@@ -65,7 +98,30 @@ button:hover:not(:disabled) {
   border-top: 1px solid #ddd;
 }
 
-/* Animations */
+/* ================================
+   Welcome Modal Larger Scaling
+================================ */
+.large-welcome-modal {
+  max-width: 480px; /* default for small screens */
+}
+
+@media (min-width: 768px) {
+  .large-welcome-modal {
+    max-width: 700px;
+    min-height: 420px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .large-welcome-modal {
+    max-width: 900px;
+    min-height: 500px;
+  }
+}
+
+/* ================================
+   Animations
+================================ */
 @keyframes loginZoomIn {
   from {
     transform: scale(0.6);
@@ -75,36 +131,4 @@ button:hover:not(:disabled) {
     transform: scale(1);
     opacity: 1;
   }
-}
-
-/* ========================
-   Welcome Modal Styles
-=========================== */
-.welcome-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000; /* Higher than login modal */
-}
-
-.welcome-modal-content {
-  background: #ffffff;
-  padding: 2rem;
-  border-radius: 12px;
-  text-align: center;
-  max-width: 480px;
-  width: 90%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-  animation: loginZoomIn 0.25s ease-in-out;
-  min-height: 320px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  position: relative;
 }
