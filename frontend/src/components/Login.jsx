@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
+import WelcomeModal from "./WelcomeModal"; // ✅ Import the new modal
 
 export default function Login({ onClose }) {
   const [email, setEmail] = useState("");
@@ -12,6 +13,9 @@ export default function Login({ onClose }) {
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loggedEmail, setLoggedEmail] = useState("");
+
+  // ✅ State for WelcomeModal
+  const [showWelcome, setShowWelcome] = useState(false);
 
   const navigate = useNavigate();
 
@@ -81,7 +85,7 @@ export default function Login({ onClose }) {
     }
   };
 
-  // REGISTER HANDLER
+  // ✅ REGISTER HANDLER (adjusted to trigger WelcomeModal)
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -92,10 +96,19 @@ export default function Login({ onClose }) {
         body: JSON.stringify({ email: newUserEmail, password: newUserPassword }),
       });
       const data = await res.json();
-      if (!res.ok) return setMessage(data.error || "Registration failed");
+
+      if (!res.ok) {
+        return setMessage(data.error || "Registration failed");
+      }
+
       setMessage("✅ Registration successful! You can now login.");
       setNewUserEmail("");
       setNewUserPassword("");
+
+      // ✅ If backend indicates a welcome modal, show it
+      if (data.showWelcomeModal) {
+        setShowWelcome(true);
+      }
     } catch (err) {
       console.error("Registration error:", err);
       setMessage("❌ Something went wrong during registration.");
@@ -116,151 +129,156 @@ export default function Login({ onClose }) {
   };
 
   return (
-    <div className="login-modal-overlay">
-      <div className="login-modal-content">
-        {/* Round X close button top-right */}
-        <button className="modal-close-btn" onClick={onClose}>
-          ✕
-        </button>
+    <>
+      {/* ✅ Show WelcomeModal if triggered */}
+      {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
 
-        {/* Header text */}
-        <h2 className="text-2xl font-bold mb-4">
-          {isLoggedIn
-            ? "You’re logged in"
-            : forgotMode
-            ? "Forgot Password"
-            : "Login"}
-        </h2>
+      <div className="login-modal-overlay">
+        <div className="login-modal-content">
+          {/* Round X close button top-right */}
+          <button className="modal-close-btn" onClick={onClose}>
+            ✕
+          </button>
 
-        {/* Logged in UI */}
-        {isLoggedIn ? (
-          <>
-            <p className="mb-4 text-gray-700">
-              Logged in as <strong>{loggedEmail}</strong>
-            </p>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
-              >
-                Log out
-              </button>
-            </div>
-            {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
-          </>
-        ) : (
-          <>
-            {/* Login / Forgot Password forms */}
-            {!forgotMode ? (
-              <form onSubmit={handleLogin} className="space-y-4 login-form">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="w-full border p-2 rounded"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  className="w-full border p-2 rounded"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <button
-                    type="submit"
-                    className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-                  >
-                    Login
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <form onSubmit={handleForgotPassword} className="space-y-4 login-form">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full border p-2 rounded"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <button
-                    type="submit"
-                    className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600"
-                  >
-                    Send Reset Link
-                  </button>
-                </div>
-              </form>
-            )}
+          {/* Header text */}
+          <h2 className="text-2xl font-bold mb-4">
+            {isLoggedIn
+              ? "You’re logged in"
+              : forgotMode
+              ? "Forgot Password"
+              : "Login"}
+          </h2>
 
-            <p
-              onClick={() => setForgotMode(!forgotMode)}
-              className="mt-4 text-blue-600 cursor-pointer underline"
-            >
-              {forgotMode ? "Back to Login" : "Forgot Password?"}
-            </p>
-
-            {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
-
-            {/* Registration section */}
-            <div className="register-section mt-10 pt-4 border-t">
-              <h3 className="font-semibold mb-2">New User Registration</h3>
-              <form onSubmit={handleRegister} className="space-y-4">
-                <input
-                  type="email"
-                  placeholder="New user email"
-                  className="w-full border p-2 rounded"
-                  value={newUserEmail}
-                  onChange={(e) => setNewUserEmail(e.target.value)}
-                  required
-                />
-                <input
-                  type="password"
-                  placeholder="New user password"
-                  className="w-full border p-2 rounded"
-                  value={newUserPassword}
-                  onChange={(e) => setNewUserPassword(e.target.value)}
-                  required
-                />
-
-                {/* Footer row: Return Home left + Register right */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginTop: "1rem",
-                  }}
+          {/* Logged in UI */}
+          {isLoggedIn ? (
+            <>
+              <p className="mb-4 text-gray-700">
+                Logged in as <strong>{loggedEmail}</strong>
+              </p>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
                 >
-                  <span
-                    style={{
-                      cursor: "pointer",
-                      color: "#555",
-                      textDecoration: "underline",
-                    }}
-                    onClick={handleReturnHome}
-                  >
-                    ⬅ Return Home
-                  </span>
+                  Log out
+                </button>
+              </div>
+              {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
+            </>
+          ) : (
+            <>
+              {/* Login / Forgot Password forms */}
+              {!forgotMode ? (
+                <form onSubmit={handleLogin} className="space-y-4 login-form">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="w-full border p-2 rounded"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    className="w-full border p-2 rounded"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                    >
+                      Login
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleForgotPassword} className="space-y-4 login-form">
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    className="w-full border p-2 rounded"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <button
+                      type="submit"
+                      className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600"
+                    >
+                      Send Reset Link
+                    </button>
+                  </div>
+                </form>
+              )}
 
-                  <button
-                    type="submit"
-                    className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+              <p
+                onClick={() => setForgotMode(!forgotMode)}
+                className="mt-4 text-blue-600 cursor-pointer underline"
+              >
+                {forgotMode ? "Back to Login" : "Forgot Password?"}
+              </p>
+
+              {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
+
+              {/* Registration section */}
+              <div className="register-section mt-10 pt-4 border-t">
+                <h3 className="font-semibold mb-2">New User Registration</h3>
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <input
+                    type="email"
+                    placeholder="New user email"
+                    className="w-full border p-2 rounded"
+                    value={newUserEmail}
+                    onChange={(e) => setNewUserEmail(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="password"
+                    placeholder="New user password"
+                    className="w-full border p-2 rounded"
+                    value={newUserPassword}
+                    onChange={(e) => setNewUserPassword(e.target.value)}
+                    required
+                  />
+
+                  {/* Footer row: Return Home left + Register right */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginTop: "1rem",
+                    }}
                   >
-                    Register
-                  </button>
-                </div>
-              </form>
-            </div>
-          </>
-        )}
+                    <span
+                      style={{
+                        cursor: "pointer",
+                        color: "#555",
+                        textDecoration: "underline",
+                      }}
+                      onClick={handleReturnHome}
+                    >
+                      ⬅ Return Home
+                    </span>
+
+                    <button
+                      type="submit"
+                      className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+                    >
+                      Register
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

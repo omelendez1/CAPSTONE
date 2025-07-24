@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
   resetToken: String,
   resetTokenExpiry: Date,
 
-  // New fields for per-account token management
+  // Per-account token management
   tokens: {
     type: Number,
     default: 0,
@@ -54,7 +54,7 @@ function authMiddleware(req, res, next) {
   const token = authHeader.split(" ")[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId; // attach userId for later use
+    req.userId = decoded.userId;
     next();
   } catch (err) {
     console.error("❌ Invalid token:", err);
@@ -66,20 +66,16 @@ function authMiddleware(req, res, next) {
     AUTH ROUTES (login, register, forgot)
 ================================ */
 
-//  LOGIN ROUTE (validates email/password, returns JWT)
+// LOGIN ROUTE
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find user
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
 
-    // Create JWT
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -91,21 +87,18 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-//  FORGOT PASSWORD ROUTE (generates reset token)
+// FORGOT PASSWORD ROUTE
 app.post("/api/auth/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
-
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Generate a reset token (valid for 1 hour)
     const resetToken = crypto.randomBytes(32).toString("hex");
     user.resetToken = resetToken;
     user.resetTokenExpiry = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    // For now, just return the token (in real app, you'd send via email)
     res.json({
       message: "Password reset token generated",
       resetToken,
@@ -116,19 +109,30 @@ app.post("/api/auth/forgot-password", async (req, res) => {
   }
 });
 
-// REGISTER ROUTE (create new users)
+// ✅ REGISTER ROUTE – simplified brand‑new signup check
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ error: "User already exists" });
 
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        error: "User already exists",
+        showWelcomeModal: false,
+      });
+    }
+
+    // Hash password and create new user
     const passwordHash = await bcrypt.hash(password, 10);
-
     const newUser = new User({ email, passwordHash });
     await newUser.save();
 
-    res.json({ message: "User registered successfully" });
+    // Brand‑new signup triggers welcome modal
+    return res.status(201).json({
+      message: "✅ Registration successful!",
+      showWelcomeModal: true,
+    });
   } catch (err) {
     console.error("❌ Register error:", err);
     res.status(500).json({ error: "Failed to register user" });
@@ -139,7 +143,6 @@ app.post("/api/auth/register", async (req, res) => {
   TOKEN MANAGEMENT ROUTES
 ================================ */
 
-// Get current user's token balance and last claim time
 app.get("/api/auth/tokens", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select("tokens lastTokenClaim");
@@ -155,7 +158,6 @@ app.get("/api/auth/tokens", authMiddleware, async (req, res) => {
   }
 });
 
-// Claim daily tokens (e.g. 5 tokens daily)
 app.post("/api/auth/claim-tokens", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
@@ -163,18 +165,17 @@ app.post("/api/auth/claim-tokens", authMiddleware, async (req, res) => {
 
     const now = new Date();
     const lastClaim = user.lastTokenClaim || new Date(0);
-
-    // Check if 24 hours passed since last claim
     const hoursSinceLastClaim = (now - lastClaim) / 1000 / 3600;
 
     if (hoursSinceLastClaim < 24) {
       return res.status(400).json({
-        error: `You can only claim tokens once every 24 hours. Please wait ${Math.ceil(24 - hoursSinceLastClaim)} hour(s).`,
+        error: `You can only claim tokens once every 24 hours. Please wait ${Math.ceil(
+          24 - hoursSinceLastClaim
+        )} hour(s).`,
       });
     }
 
-    const DAILY_TOKEN_AMOUNT = 5; // Adjust as needed
-
+    const DAILY_TOKEN_AMOUNT = 5;
     user.tokens += DAILY_TOKEN_AMOUNT;
     user.lastTokenClaim = now;
     await user.save();
@@ -194,7 +195,6 @@ app.post("/api/auth/claim-tokens", authMiddleware, async (req, res) => {
    PROTECTED CARD ROUTES (USER SPECIFIC)
 ================================ */
 
-// Fetch all saved cards **only for the logged-in user**
 app.get("/api/cards", authMiddleware, async (req, res) => {
   try {
     const cards = await Card.find({ userId: req.userId });
@@ -205,7 +205,6 @@ app.get("/api/cards", authMiddleware, async (req, res) => {
   }
 });
 
-// Save a card for this logged-in user
 app.post("/api/cards", authMiddleware, async (req, res) => {
   try {
     const { name, type, imageUrl, nationalPokedexNumber } = req.body;
@@ -214,7 +213,7 @@ app.post("/api/cards", authMiddleware, async (req, res) => {
       type,
       imageUrl,
       nationalPokedexNumber,
-      userId: req.userId, // tie card to logged-in user
+      userId: req.userId,
     });
     await newCard.save();
     res.json({ message: "Card saved!", card: newCard });
@@ -224,7 +223,6 @@ app.post("/api/cards", authMiddleware, async (req, res) => {
   }
 });
 
-// Grouped collection by generation (user-specific)
 app.get("/api/collections-grouped", authMiddleware, async (req, res) => {
   try {
     const cards = await Card.find({ userId: req.userId });
@@ -263,25 +261,17 @@ app.get("/api/collections-grouped", authMiddleware, async (req, res) => {
 ================================ */
 app.post("/api/admin/fix-pokedex", async (req, res) => {
   try {
-    // Find all cards with the WRONG field name
     const badCards = await Card.find({ " nationalPokedexNumber": { $exists: true } });
-
     if (!badCards.length) {
       return res.json({ message: "✅ No bad cards found. DB is already clean." });
     }
 
     let fixedCount = 0;
-
     for (const card of badCards) {
       const rawValue = card[" nationalPokedexNumber"];
       const parsedDex = parseInt(rawValue, 10) || 0;
-
-      // ✅ Copy value into correct field
       card.nationalPokedexNumber = parsedDex;
-
-      // ✅ Remove the wrong field
       card.set(" nationalPokedexNumber", undefined, { strict: false });
-
       await card.save();
       console.log(`✅ Fixed card: ${card.name} → ${parsedDex}`);
       fixedCount++;
@@ -295,15 +285,13 @@ app.post("/api/admin/fix-pokedex", async (req, res) => {
 });
 
 /* ================================
-    POKÉMON API PROXY (unchanged)
+    POKÉMON API PROXY
 ================================ */
 
-// Health check route
 app.get("/", (req, res) => {
   res.send("✅ Hello from backend");
 });
 
-// Pokémon TCG API Proxy
 app.get("/api/random-card", async (req, res) => {
   try {
     const apiKey = process.env.POKEMON_API_KEY;
