@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import WelcomeModal from "./WelcomeModal";
-import DeleteConfirmationModal from "./DeleteConfirmationModal"; // ✅ Import the new modal
+import DeleteConfirmationModal from "./DeleteConfirmationModal"; // Import the new modal
+
+//  Centralized backend URL
+const API_BASE_URL = "https://capstone-backend-o1hj.onrender.com";
 
 export default function Login({ onClose }) {
   const [email, setEmail] = useState("");
@@ -15,10 +18,10 @@ export default function Login({ onClose }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loggedEmail, setLoggedEmail] = useState("");
 
-  // ✅ State for WelcomeModal
+  // State for WelcomeModal
   const [showWelcome, setShowWelcome] = useState(false);
 
-  // ✅ State for Delete Profile modal
+  // State for Delete Profile modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const navigate = useNavigate();
@@ -39,12 +42,12 @@ export default function Login({ onClose }) {
     }
   }, []);
 
-  // LOGIN HANDLER
+  // ✅ LOGIN HANDLER – now uses full backend URL
   const handleLogin = async (e) => {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -70,12 +73,12 @@ export default function Login({ onClose }) {
     }
   };
 
-  // FORGOT PASSWORD HANDLER
+  // ✅ FORGOT PASSWORD HANDLER – now uses full backend URL
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await fetch("/api/auth/forgot-password", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -89,12 +92,12 @@ export default function Login({ onClose }) {
     }
   };
 
-  // ✅ REGISTER HANDLER (adjusted to trigger WelcomeModal)
+  // ✅ REGISTER HANDLER – now uses full backend URL
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: newUserEmail, password: newUserPassword }),
@@ -151,7 +154,7 @@ export default function Login({ onClose }) {
 
       <div className="login-modal-overlay">
         <div className="login-modal-content">
-          {/* ✅ Clean, conventional close icon top-right */}
+          {/* Clean, conventional close icon top-right */}
           <span className="modal-close-icon" onClick={onClose}>
             ✕
           </span>
@@ -275,7 +278,7 @@ export default function Login({ onClose }) {
                     required
                   />
 
-                  {/* ✅ Footer row: Return Home, Delete Profile, Register */}
+                  {/* Footer row: Return Home, Delete Profile, Register */}
                   <div
                     style={{
                       display: "flex",
@@ -296,7 +299,7 @@ export default function Login({ onClose }) {
                     </span>
 
                     <div style={{ display: "flex", gap: "1rem" }}>
-                      {/* ✅ New Delete Profile button */}
+                      {/* New Delete Profile button */}
                       <button
                         type="button"
                         onClick={() => setShowDeleteModal(true)}
@@ -322,3 +325,4 @@ export default function Login({ onClose }) {
     </>
   );
 }
+
