@@ -28,6 +28,16 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   resetToken: String,
   resetTokenExpiry: Date,
+
+  // New fields for per-account token management
+  tokens: {
+    type: Number,
+    default: 0,
+  },
+  lastTokenClaim: {
+    type: Date,
+    default: null,
+  },
 });
 
 const User = mongoose.model("User", userSchema);
@@ -122,6 +132,61 @@ app.post("/api/auth/register", async (req, res) => {
   } catch (err) {
     console.error("❌ Register error:", err);
     res.status(500).json({ error: "Failed to register user" });
+  }
+});
+
+/* ================================
+  TOKEN MANAGEMENT ROUTES
+================================ */
+
+// Get current user's token balance and last claim time
+app.get("/api/auth/tokens", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("tokens lastTokenClaim");
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({
+      tokens: user.tokens,
+      lastTokenClaim: user.lastTokenClaim,
+    });
+  } catch (err) {
+    console.error("❌ Error fetching tokens:", err);
+    res.status(500).json({ error: "Failed to fetch token info" });
+  }
+});
+
+// Claim daily tokens (e.g. 5 tokens daily)
+app.post("/api/auth/claim-tokens", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const now = new Date();
+    const lastClaim = user.lastTokenClaim || new Date(0);
+
+    // Check if 24 hours passed since last claim
+    const hoursSinceLastClaim = (now - lastClaim) / 1000 / 3600;
+
+    if (hoursSinceLastClaim < 24) {
+      return res.status(400).json({
+        error: `You can only claim tokens once every 24 hours. Please wait ${Math.ceil(24 - hoursSinceLastClaim)} hour(s).`,
+      });
+    }
+
+    const DAILY_TOKEN_AMOUNT = 5; // Adjust as needed
+
+    user.tokens += DAILY_TOKEN_AMOUNT;
+    user.lastTokenClaim = now;
+    await user.save();
+
+    res.json({
+      message: `You have claimed ${DAILY_TOKEN_AMOUNT} tokens.`,
+      tokens: user.tokens,
+      lastTokenClaim: user.lastTokenClaim,
+    });
+  } catch (err) {
+    console.error("❌ Error claiming tokens:", err);
+    res.status(500).json({ error: "Failed to claim tokens" });
   }
 });
 
