@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import tokenIcon from "../assets/token.png";
 
-// ✅ Centralized backend URL
+//  Centralized backend URL
 const API_BASE_URL = "https://capstone-backend-o1hj.onrender.com";
 
 export default function Home() {
