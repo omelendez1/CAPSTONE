@@ -6,8 +6,8 @@ import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import path from "path";                     // <-- NEW import for __dirname fix
-import { fileURLToPath } from "url";         // <-- NEW import for __dirname fix
+import path from "path";                     // <-- For __dirname fix
+import { fileURLToPath } from "url";         // <-- For __dirname fix
 
 import Card from "./models/Card.js";
 
@@ -17,13 +17,14 @@ const app = express();
 
 // ===== Updated CORS to allow multiple origins =====
 const allowedOrigins = [
-  "http://localhost:5173",                 // React local dev server
-  "https://your-netlify-site.netlify.app" // <-- Replace with your actual Netlify URL
+  "http://localhost:5173",                       // React local dev server
+  "https://pokemoncardgeneratorgame.netlify.app", // Your frontend Netlify URL
+  "https://capstone-backend-o1hj.onrender.com"     // Your backend URL itself
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // Allow tools like Postman or curl with no origin
+    if (!origin) return callback(null, true); // Allow Postman, curl, or server-to-server calls with no origin
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = `CORS policy: The origin ${origin} is not allowed by CORS.`;
       return callback(new Error(msg), false);
