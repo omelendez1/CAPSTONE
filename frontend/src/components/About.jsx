@@ -36,23 +36,21 @@ export default function About() {
           encouraging you to keep exploring and completing your Pokédex.
         </p>
 
-        {/* Intro Video (replaceable later) */}
-        <div className="mt-4">
+        {/* Responsive Intro Video */}
+        <div className="relative w-full pb-[56.25%] h-0 mt-4 rounded-lg overflow-hidden shadow-lg">
           <iframe
-            width="100%"
-            height="315"
+            className="absolute top-0 left-0 w-full h-full"
             src="https://www.youtube.com/embed/Offw-N3PkoA"
             title="Pokémon History Video"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="rounded-lg shadow-lg"
           ></iframe>
-          <p className="text-sm text-gray-500 mt-2">
-            *This video is streamed from YouTube but can later be replaced with a
-            local hosted video for offline support.
-          </p>
         </div>
+        <p className="text-sm text-gray-500 mt-2">
+          *This video is streamed from YouTube but can later be replaced with a
+          locally hosted file for offline support.
+        </p>
       </section>
 
       {/* --- History Section --- */}
@@ -64,23 +62,20 @@ export default function About() {
           it all started and relive the excitement that captured a generation.
         </p>
 
-        {/* History Video (replaceable later) */}
-        <div className="mt-4">
+        {/* Responsive History Video */}
+        <div className="relative w-full pb-[56.25%] h-0 mt-4 rounded-lg overflow-hidden shadow-lg">
           <iframe
-            width="100%"
-            height="315"
+            className="absolute top-0 left-0 w-full h-full"
             src="https://www.youtube.com/embed/kD366fd1dIs"
             title="Pokémon Commercials History"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            className="rounded-lg shadow-lg"
           ></iframe>
-          <p className="text-sm text-gray-500 mt-2">
-            *This is a linked video but can be swapped with a self-hosted file
-            later for better integration.
-          </p>
         </div>
+        <p className="text-sm text-gray-500 mt-2">
+          *This is a linked video but can be swapped with a self-hosted file later for better integration.
+        </p>
       </section>
 
       {/* --- Future Features Section --- */}
