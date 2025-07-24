@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import WelcomeModal from "./WelcomeModal"; // ✅ Import the new modal
+import WelcomeModal from "./WelcomeModal";
+import DeleteConfirmationModal from "./DeleteConfirmationModal"; // ✅ Import the new modal
 
 export default function Login({ onClose }) {
   const [email, setEmail] = useState("");
@@ -16,6 +17,9 @@ export default function Login({ onClose }) {
 
   // ✅ State for WelcomeModal
   const [showWelcome, setShowWelcome] = useState(false);
+
+  // ✅ State for Delete Profile modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -132,6 +136,18 @@ export default function Login({ onClose }) {
     <>
       {/* Show WelcomeModal if triggered */}
       {showWelcome && <WelcomeModal onClose={() => setShowWelcome(false)} />}
+
+      {/* ✅ Show DeleteConfirmationModal if triggered */}
+      {showDeleteModal && (
+        <DeleteConfirmationModal
+          onClose={() => setShowDeleteModal(false)}
+          onDeleteSuccess={() => {
+            setShowDeleteModal(false);
+            // Optional: log the user out after deletion
+            handleLogout();
+          }}
+        />
+      )}
 
       <div className="login-modal-overlay">
         <div className="login-modal-content">
@@ -259,7 +275,7 @@ export default function Login({ onClose }) {
                     required
                   />
 
-                  {/* Footer row: Return Home left + Register right */}
+                  {/* ✅ Footer row: Return Home, Delete Profile, Register */}
                   <div
                     style={{
                       display: "flex",
@@ -279,12 +295,23 @@ export default function Login({ onClose }) {
                       ⬅ Return Home
                     </span>
 
-                    <button
-                      type="submit"
-                      className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
-                    >
-                      Register
-                    </button>
+                    <div style={{ display: "flex", gap: "1rem" }}>
+                      {/* ✅ New Delete Profile button */}
+                      <button
+                        type="button"
+                        onClick={() => setShowDeleteModal(true)}
+                        className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+                      >
+                        Delete Profile
+                      </button>
+
+                      <button
+                        type="submit"
+                        className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+                      >
+                        Register
+                      </button>
+                    </div>
                   </div>
                 </form>
               </div>

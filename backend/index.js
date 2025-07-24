@@ -28,8 +28,6 @@ const userSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   resetToken: String,
   resetTokenExpiry: Date,
-
-  // Per-account token management
   tokens: {
     type: Number,
     default: 0,
@@ -63,10 +61,10 @@ function authMiddleware(req, res, next) {
 }
 
 /* ================================
-    AUTH ROUTES (login, register, forgot)
+    AUTH ROUTES
 ================================ */
 
-// LOGIN ROUTE
+// LOGIN
 app.post("/api/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -87,7 +85,7 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
-// FORGOT PASSWORD ROUTE
+// FORGOT PASSWORD
 app.post("/api/auth/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -109,17 +107,14 @@ app.post("/api/auth/forgot-password", async (req, res) => {
   }
 });
 
-/* ================================
- ✅ REGISTER ROUTE – now with TEST EMAIL OVERRIDE
-================================ */
+// REGISTER
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // 🛠 SPECIAL TEST EMAIL OVERRIDE
+    // Special test email triggers welcome modal
     if (email === "testdev@example.com") {
       let testUser = await User.findOne({ email });
-
       if (!testUser) {
         const passwordHash = await bcrypt.hash(password, 10);
         testUser = new User({ email, passwordHash });
@@ -132,7 +127,7 @@ app.post("/api/auth/register", async (req, res) => {
       });
     }
 
-    // 🔎 Normal signup flow
+    // Normal signup flow
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -141,12 +136,10 @@ app.post("/api/auth/register", async (req, res) => {
       });
     }
 
-    // Hash password and create new user
     const passwordHash = await bcrypt.hash(password, 10);
     const newUser = new User({ email, passwordHash });
     await newUser.save();
 
-    // Brand‑new signup triggers welcome modal
     return res.status(201).json({
       message: "✅ Registration successful!",
       showWelcomeModal: true,
@@ -157,10 +150,38 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
+/* ✅ NEW: DELETE USER ROUTE */
+app.delete("/api/auth/delete", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Compare password with stored hash
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    // Delete user record
+    await User.deleteOne({ _id: user._id });
+
+    return res.json({ message: "✅ User deleted successfully" });
+  } catch (err) {
+    console.error("❌ Delete user error:", err);
+    res.status(500).json({ error: "Server error while deleting user" });
+  }
+});
+
 /* ================================
   TOKEN MANAGEMENT ROUTES
 ================================ */
-
 app.get("/api/auth/tokens", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.userId).select("tokens lastTokenClaim");
@@ -210,7 +231,7 @@ app.post("/api/auth/claim-tokens", authMiddleware, async (req, res) => {
 });
 
 /* ================================
-   PROTECTED CARD ROUTES (USER SPECIFIC)
+  PROTECTED CARD ROUTES
 ================================ */
 app.get("/api/cards", authMiddleware, async (req, res) => {
   try {
@@ -274,7 +295,7 @@ app.get("/api/collections-grouped", authMiddleware, async (req, res) => {
 });
 
 /* ================================
-   CLEANUP ROUTE: FIX BAD FIELDS
+  CLEANUP ROUTE
 ================================ */
 app.post("/api/admin/fix-pokedex", async (req, res) => {
   try {
@@ -302,7 +323,7 @@ app.post("/api/admin/fix-pokedex", async (req, res) => {
 });
 
 /* ================================
-    POKÉMON API PROXY
+  POKÉMON API PROXY
 ================================ */
 app.get("/", (req, res) => {
   res.send("✅ Hello from backend");
@@ -340,7 +361,7 @@ app.get("/api/random-card", async (req, res) => {
 });
 
 /* ================================
-SERVER START
+  SERVER START
 ================================ */
 const PORT = 8080;
 app.listen(PORT, () =>
