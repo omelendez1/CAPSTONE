@@ -28,6 +28,20 @@
   z-index: 2000; /* Above Login modal */
 }
 
+/* Newly added overlay for Delete Confirmation Modal */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000; /* Above Welcome modal */
+}
+
 .login-modal-content,
 .welcome-modal-content {
   background: #ffffff;

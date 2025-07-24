@@ -51,7 +51,7 @@ export default function DeleteConfirmationModal({ onClose, onDeleteSuccess }) {
   };
 
   return (
-    <div className="login-modal-overlay" onClick={onClose}>
+    <div className="delete-modal-overlay" onClick={onClose}>
       <div
         className="login-modal-content"
         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
@@ -103,7 +103,10 @@ export default function DeleteConfirmationModal({ onClose, onDeleteSuccess }) {
           </label>
 
           {message && (
-            <p className="text-sm mt-2" style={{ color: message.includes("✅") ? "green" : "red" }}>
+            <p
+              className="text-sm mt-2"
+              style={{ color: message.includes("✅") ? "green" : "red" }}
+            >
               {message}
             </p>
           )}

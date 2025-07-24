@@ -150,7 +150,9 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
-/* ✅ NEW: DELETE USER ROUTE */
+/* ================================
+  ✅ DELETE USER ROUTE (with card cleanup)
+================================ */
 app.delete("/api/auth/delete", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -169,10 +171,13 @@ app.delete("/api/auth/delete", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    // Delete all cards belonging to this user
+    await Card.deleteMany({ userId: user._id });
+
     // Delete user record
     await User.deleteOne({ _id: user._id });
 
-    return res.json({ message: "✅ User deleted successfully" });
+    return res.json({ message: "✅ User and all associated cards deleted successfully" });
   } catch (err) {
     console.error("❌ Delete user error:", err);
     res.status(500).json({ error: "Server error while deleting user" });
