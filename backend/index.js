@@ -109,12 +109,30 @@ app.post("/api/auth/forgot-password", async (req, res) => {
   }
 });
 
-// ✅ REGISTER ROUTE – simplified brand‑new signup check
+/* ================================
+ ✅ REGISTER ROUTE – now with TEST EMAIL OVERRIDE
+================================ */
 app.post("/api/auth/register", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user already exists
+    // 🛠 SPECIAL TEST EMAIL OVERRIDE
+    if (email === "testdev@example.com") {
+      let testUser = await User.findOne({ email });
+
+      if (!testUser) {
+        const passwordHash = await bcrypt.hash(password, 10);
+        testUser = new User({ email, passwordHash });
+        await testUser.save();
+      }
+
+      return res.status(201).json({
+        message: "✅ Test account always triggers welcome modal",
+        showWelcomeModal: true,
+      });
+    }
+
+    // 🔎 Normal signup flow
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -194,7 +212,6 @@ app.post("/api/auth/claim-tokens", authMiddleware, async (req, res) => {
 /* ================================
    PROTECTED CARD ROUTES (USER SPECIFIC)
 ================================ */
-
 app.get("/api/cards", authMiddleware, async (req, res) => {
   try {
     const cards = await Card.find({ userId: req.userId });
@@ -287,7 +304,6 @@ app.post("/api/admin/fix-pokedex", async (req, res) => {
 /* ================================
     POKÉMON API PROXY
 ================================ */
-
 app.get("/", (req, res) => {
   res.send("✅ Hello from backend");
 });
