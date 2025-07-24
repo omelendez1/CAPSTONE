@@ -6,7 +6,7 @@ A full-stack MERN (MongoDB, Express, React, Node) web application that allows us
 
 ## 🌐 Live Demo
 
-[👉 **View the deployed app on Netlify**](#)
+[👉 **View the deployed app on Netlify**]("https://capstone-backend-o1hj.onrender.com";)
 
 ---
 
