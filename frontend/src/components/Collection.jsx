@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import "./Collection.css";
 
+// ✅ Always use the deployed backend URL
+const API_BASE_URL = "https://capstone-backend-o1hj.onrender.com";
+
 export default function Collection({ onRequireLogin }) {
   const [grouped, setGrouped] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +26,7 @@ export default function Collection({ onRequireLogin }) {
       setLoggedIn(true);
 
       try {
-        const res = await fetch("/api/collections-grouped", {
+        const res = await fetch(`${API_BASE_URL}/api/collections-grouped`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -118,12 +121,25 @@ export default function Collection({ onRequireLogin }) {
     <div style={{ padding: "2rem" }}>
       {/*  Show warning if not logged in */}
       {!loggedIn && (
-        <div style={{ textAlign: "center", color: "red", marginBottom: "1rem", fontWeight: "bold" }}>
+        <div
+          style={{
+            textAlign: "center",
+            color: "red",
+            marginBottom: "1rem",
+            fontWeight: "bold",
+          }}
+        >
           ⚠️ You must log in to view & generate random cards!
         </div>
       )}
 
-      <h1 style={{ textAlign: "center", fontSize: "2rem", marginBottom: "2rem" }}>
+      <h1
+        style={{
+          textAlign: "center",
+          fontSize: "2rem",
+          marginBottom: "2rem",
+        }}
+      >
         Your Pokémon Collection
       </h1>
 
@@ -140,8 +156,14 @@ export default function Collection({ onRequireLogin }) {
       {/*  Modal overlay for selected card */}
       {selectedCard && (
         <div className="modal-overlay" onClick={() => setSelectedCard(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={() => setSelectedCard(null)}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="close-btn"
+              onClick={() => setSelectedCard(null)}
+            >
               ✖
             </button>
             <img
