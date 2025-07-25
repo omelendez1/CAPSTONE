@@ -51,29 +51,29 @@ export default function About() {
         </div>
 
         <p className="text-sm text-gray-500 mt-2">
-        1981 – Satoshi Tajiri creates Game Freak magazine, later joined by artist Ken Sugimori.
+        1981 – Satoshi Tajiri creates Game Freak magazine, later joined by artist Ken Sugimori.<br></br>
 
-1989 – Game Freak evolves into a game development studio.
+1989 – Game Freak evolves into a game development studio.<br></br>
 
-1996 – Pokémon Red & Green release in Japan for Game Boy, inspired by Tajiri’s bug-collecting hobby and link cable trading.
+1996 – Pokémon Red & Green release in Japan for Game Boy, inspired by Tajiri’s bug-collecting hobby and link cable trading.<br></br>
 
-Core gameplay – Players choose one of three starters, collect and train Pokémon, defeat gym leaders, stop an evil team, and aim to catch all 151.
+Core gameplay – Players choose one of three starters, collect and train Pokémon, defeat gym leaders, stop an evil team, and aim to catch all 151.<br></br>
 
-Version exclusives – Red & Green required trading via link cable to complete the Pokédex.
+Version exclusives – Red & Green required trading via link cable to complete the Pokédex.<br></br>
 
-Massive success – Led to Blue, Yellow (anime tie-in), and eventual worldwide release (North America got Red/Blue in 1998).
+Massive success – Led to Blue, Yellow (anime tie-in), and eventual worldwide release (North America got Red/Blue in 1998).<br></br>
 
-Sequels – Gold & Silver (1999–2000) added 100 Pokémon, day/night cycle, breeding, shinies, and Game Boy Color support.
+Sequels – Gold & Silver (1999–2000) added 100 Pokémon, day/night cycle, breeding, shinies, and Game Boy Color support.<br></br>
 
-Generational growth – Ruby/Sapphire (GBA), Diamond/Pearl (DS), Black/White (+ sequels), X/Y (3DS with 3D graphics & Mega Evolutions).
+Generational growth – Ruby/Sapphire (GBA), Diamond/Pearl (DS), Black/White (+ sequels), X/Y (3DS with 3D graphics & Mega Evolutions).<br></br>
 
-Remakes – FireRed/LeafGreen, HeartGold/SoulSilver, Omega Ruby/Alpha Sapphire modernized classics.
+Remakes – FireRed/LeafGreen, HeartGold/SoulSilver, Omega Ruby/Alpha Sapphire modernized classics.<br></br>
 
-Spin-offs – Stadium, Coliseum, Mystery Dungeon, Snap, Pokkén Tournament, Pokémon Go, Detective Pikachu.
+Spin-offs – Stadium, Coliseum, Mystery Dungeon, Snap, Pokkén Tournament, Pokémon Go, Detective Pikachu.<br></br>
 
-Global phenomenon – 25+ main games, tons of spin-offs, 19+ anime seasons, movies, trading cards, and endless merchandise.
+Global phenomenon – 25+ main games, tons of spin-offs, 19+ anime seasons, movies, trading cards, and endless merchandise.<br></br>
 
-20+ years strong – Pokémon remains one of the biggest franchises, continuously evolving while staying true to its original vision.
+20+ years strong – Pokémon remains one of the biggest franchises, continuously evolving while staying true to its original vision.<br></br>
         </p>
       </section>
 
