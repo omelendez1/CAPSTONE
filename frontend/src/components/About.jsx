@@ -36,7 +36,7 @@ export default function About() {
           encouraging you to keep exploring and completing your Pokédex.
         </p>
 
-        {/* ✅ Responsive & Centered Intro Video */}
+        {/*  Responsive & Centered Intro Video */}
         <div className="flex justify-center mt-4">
           <div className="relative w-full max-w-2xl pb-[56.25%] h-0 rounded-lg shadow-lg">
             <iframe
@@ -52,7 +52,7 @@ export default function About() {
 
         <p className="text-sm text-gray-500 mt-2">
           *This video is streamed from YouTube but can later be replaced with a
-          locally hosted file for offline support.<br></br>t
+          locally hosted file for offline support.
         </p>
       </section>
 
@@ -83,7 +83,29 @@ export default function About() {
         </div>
 
         <p className="text-sm text-gray-500 mt-2">
-          *This is a linked video but can be swapped with a self-hosted file later for better integration.
+          1981 – Satoshi Tajiri creates Game Freak magazine, later joined by artist Ken Sugimori.
+
+1989 – Game Freak evolves into a game development studio.
+
+1996 – Pokémon Red & Green release in Japan for Game Boy, inspired by Tajiri’s bug-collecting hobby and link cable trading.
+
+Core gameplay – Players choose one of three starters, collect and train Pokémon, defeat gym leaders, stop an evil team, and aim to catch all 151.
+
+Version exclusives – Red & Green required trading via link cable to complete the Pokédex.
+
+Massive success – Led to Blue, Yellow (anime tie-in), and eventual worldwide release (North America got Red/Blue in 1998).
+
+Sequels – Gold & Silver (1999–2000) added 100 Pokémon, day/night cycle, breeding, shinies, and Game Boy Color support.
+
+Generational growth – Ruby/Sapphire (GBA), Diamond/Pearl (DS), Black/White (+ sequels), X/Y (3DS with 3D graphics & Mega Evolutions).
+
+Remakes – FireRed/LeafGreen, HeartGold/SoulSilver, Omega Ruby/Alpha Sapphire modernized classics.
+
+Spin-offs – Stadium, Coliseum, Mystery Dungeon, Snap, Pokkén Tournament, Pokémon Go, Detective Pikachu.
+
+Global phenomenon – 25+ main games, tons of spin-offs, 19+ anime seasons, movies, trading cards, and endless merchandise.
+
+20+ years strong – Pokémon remains one of the biggest franchises, continuously evolving while staying true to its original vision.
         </p>
       </section>
 
