@@ -36,20 +36,23 @@ export default function About() {
           encouraging you to keep exploring and completing your Pokédex.
         </p>
 
-        {/* Responsive Intro Video */}
-        <div className="relative w-full pb-[56.25%] h-0 mt-4 rounded-lg overflow-hidden shadow-lg">
-          <iframe
-            className="absolute top-0 left-0 w-full h-full"
-            src="https://www.youtube.com/embed/Offw-N3PkoA"
-            title="Pokémon History Video"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
+        {/* ✅ Responsive & Centered Intro Video */}
+        <div className="flex justify-center mt-4">
+          <div className="relative w-full max-w-2xl pb-[56.25%] h-0 rounded-lg shadow-lg">
+            <iframe
+              className="absolute top-0 left-0 w-full h-full rounded-lg"
+              src="https://www.youtube.com/embed/Offw-N3PkoA"
+              title="Pokémon History Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
         </div>
+
         <p className="text-sm text-gray-500 mt-2">
           *This video is streamed from YouTube but can later be replaced with a
-          locally hosted file for offline support.
+          locally hosted file for offline support.<br></br>
         </p>
       </section>
 
@@ -62,17 +65,20 @@ export default function About() {
           it all started and relive the excitement that captured a generation.
         </p>
 
-        {/* Responsive History Video */}
-        <div className="relative w-full pb-[56.25%] h-0 mt-4 rounded-lg overflow-hidden shadow-lg">
-          <iframe
-            className="absolute top-0 left-0 w-full h-full"
-            src="https://www.youtube.com/embed/kD366fd1dIs"
-            title="Pokémon Commercials History"
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          ></iframe>
+        {/* ✅ Responsive & Centered History Video */}
+        <div className="flex justify-center mt-4">
+          <div className="relative w-full max-w-2xl pb-[56.25%] h-0 rounded-lg shadow-lg">
+            <iframe
+              className="absolute top-0 left-0 w-full h-full rounded-lg"
+              src="https://www.youtube.com/embed/kD366fd1dIs"
+              title="Pokémon Commercials History"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
         </div>
+
         <p className="text-sm text-gray-500 mt-2">
           *This is a linked video but can be swapped with a self-hosted file later for better integration.
         </p>
