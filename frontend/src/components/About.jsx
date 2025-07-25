@@ -52,9 +52,12 @@ export default function About() {
 
         <p className="text-sm text-gray-500 mt-2">
           *This video is streamed from YouTube but can later be replaced with a
-          locally hosted file for offline support.<br></br>
+          locally hosted file for offline support.<br></br>t
         </p>
       </section>
+
+      <br></br>
+
 
       {/* --- History Section --- */}
       <section className="mx-auto max-w-3xl space-y-4">
